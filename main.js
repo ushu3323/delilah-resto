@@ -1,30 +1,18 @@
 const express = require("express");
+const cors = require('cors');
+const YAML = require('yamljs');
+const swaggerUI = require('swagger-ui-express');
 const app = express();
 
-function arrayOfParam(users, param){
-    /**
-     * @return list of user's value of the given parameter 
-     */
-    /**
-    * @parameter users: List of users
-    * @parameter param: the value to use to generate the list
-    */
+const swaggerDocument = YAML.load('./swagger.yaml');
 
-    const listOfParameters = [];
+app.use(express.json(), cors());
 
-    users.forEach(u => {
-        listOfParameters.push(u[param]);
-    });
-
-}
-
-
-app.use(express.json());
-
+// Routes
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use(require("./routes/routes.js"));
 
-
-const port = 3000
+const port = 5000
 app.listen(port, () => {
     console.log(`Listening at port: ${port}`);
 });

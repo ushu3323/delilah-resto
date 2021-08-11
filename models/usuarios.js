@@ -106,7 +106,24 @@ function userLogin(login_json){
 
 module.exports = class Usuarios {
     constructor() {
-        this.list = [];
+        this.list = [
+            {
+                username: "queen_freddie",
+                fullName: "Freddie Mercury",
+                email: "freddiemercury@gmail.com",
+                number: "+44 7712345678",
+                address: "1 Logan PIKensington, London W8 6DE, UK",
+                password: "1234"
+            },
+            {
+                username: "stejobs20",
+                fullname: "Steve Jobs",
+                email: "steveJobs20@gmail.com",
+                number: "+5412545410",
+                address: "LA, USA 1231",
+                password: "123456"
+              }
+        ];
     }
     
     _newUser(userdata){

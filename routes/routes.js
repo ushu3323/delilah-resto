@@ -20,13 +20,13 @@ function handleError(error){
     return final_error;
 }
 
-routes.get("/users/all", (req,res) => {
-    res.json({
-        users: users.list,
-    })
+
+routes.get("/users", (req,res) => {
+    res.json(users.list)
 });
 
 routes.post("/users/login", (req,res) => {
+    req.query
     let is_loggedin = userLogin(req.body)
     res.sendStatus(403);
 });
