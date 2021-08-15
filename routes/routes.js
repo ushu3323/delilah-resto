@@ -1,6 +1,7 @@
 const express = require("express");
 const routes = express.Router();
 const Usuarios = require("../models/usuarios.js");
+
 const users = new Usuarios();
 
 function handleError(error){
@@ -25,13 +26,13 @@ routes.get("/users", (req,res) => {
     res.json(users.list)
 });
 
-routes.post("/users/login", (req,res) => {
-    req.query
+routes.post("/login", (req,res) => {
+    req.header("")
     let is_loggedin = userLogin(req.body)
     res.sendStatus(403);
 });
 
-routes.post("/users/new", (req,res) =>{
+routes.post("/users", (req,res) =>{
     // console.log("body:", req.body);
     // console.log("query:", req.query);
     try {
@@ -40,13 +41,14 @@ routes.post("/users/new", (req,res) =>{
     } catch (error) {
         let final_error = handleError(error);
 
-        console.log("an error has been ocurred:", final_error)
-        res.status(500).json(final_error)
+        console.log("an error has been ocurred:", final_error);
+        res.status(500).json(final_error);
     }
 });
 
+
 routes.get("/", (req,res) =>{
-    res.send("Hello, this is the index page!");
+    res.send("<h2>Servicio de gestion de pedidos del restaurante \"Delilah Restó\"</h2><p>Porfavor, dirigase a /docs para mas informacion acerca de como usar esta API</p>");
 });
 
 module.exports = routes;

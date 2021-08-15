@@ -1,16 +1,16 @@
 const route = require('express').Router()
-const users = require('../models/usuarios');
+
+// Controllers
+const usersC = require('../controllers/users.controller');
+const usersM = require('../middlewares/user.middleware');
+
+const Users = require("../models/users");
 
 // Obtiene todos los usuarios
-route.get('/users', (req,res) => {
-    res.status(200).json(users.list);
-});
+route.get('/users', usersM.isAdmin, usersC.allUsers);
 
-route.post("users/new", (req,res) => {
-    try {
-        users.register(req.body);
-        res.sendStatus(200)
-    } catch (error) {
-        let final_error = handleError(error);
-    }
-});
+route.post('/users', usersC.validateRegister, usersC.registerUser);
+
+route.post('/login', usersC.login);
+
+module.exports = route;

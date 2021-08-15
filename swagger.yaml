@@ -2,18 +2,46 @@ openapi: 3.0.0
 info:
   title: Delilah Restó
   version: 1.0.0
-  description: Servicio que gestiona el backend de un restaurante
-
+  description: Servicio de gestion de pedidos de un restaurante
 servers:
   - url: http://localhost:5000
     description: Servidor de desarrollo
 
 paths:
+  # /users/{userId}:
+  #   put:
+  #     tags:
+  #       - Usuario
+  #     summary: Modificar un usuario existente
+  #     description: 'Modifica un usuario existente, solo se puede realizar tanto si el que lo solicita: es el propio usuario o es administrador'
+  #     parameters:
+  #       - in: header
+  #         name: userId
+  #         schema:
+  #           type: integer
+  #         required: true
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/User'      
+  #     responses:
+  #       '200':
+  #         description: OK
+  #       '404':
+  #         description: El usuario no existe
   /users:
     get:
       tags:
-        - "users"
-      summary: Obtiene una lista de todos los usuarios
+        - Usuario
+      summary: Todos los usuarios
+      description: Devuelve una lista con todos los usuarios registrados y sus respectivos datos, Solo los administradores pueden verlo
+      parameters:
+        - in: header
+          name: userId
+          schema:
+            type: integer
+          required: true
       responses:
         '200':
           description: Ok
@@ -22,31 +50,143 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'              
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: El usuario no es administrador           
     post:
       tags:
-        - "users"
-      summary: Crea un nuevo usuario
+        - Usuario
+      summary: Crear un nuevo usuario
       operationId: addUser
-      parameters:
-        - in: body
-          required: true
-          name: body
-          schema:
-            $ref: '#/components/schemas/User'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User Register'
+
       responses:
         '200':
-          description: Ok
+          description: OK
         '422':
           description: Datos invalidos
-      
+  /login:
+    post:
+      tags:
+        - Usuario
+        - Administrador
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: OK
+  /orders:
+    get:
+      tags:
+        - Pedidos
+      summary: Todos los pedidos
+      description: Devuelve una lista de todos los pedidos realizados por los usuarios, solo los administradores pueden ver esta informacion
+      parameters:
+        - in: header
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '401':
+          description: El usuario no es administrador
+    post:
+      tags:
+        - Pedidos
+      summary: Realizar un pedido
+      description: Realiza un pedido y se lo aplica al usuario indicado en el header. se pondra su estado por defecto a NUEVO
+      parameters:
+        - in: header
+          name: userId
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: OK
+  /orders/{orderID}:
+    get:
+      tags:
+        - Pedidos
+      summary: Pedido especifico
+      description: Devuelve el pedido especificado
+      parameters:
+        - in: path
+          name: orderID
+          required: true
+          schema:
+            type: integer
+        - in: header
+          required: true
+          name: userID
+          schema:
+            type: integer
+            
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: La orden con id {orderID} no existe
+    put:
+      tags:
+        - Pedidos
+      summary: Pedido especifico
+      description: Modifica el pedido especificado
+      parameters:
+        - in: path
+          name: orderID
+          required: true
+          schema:
+            type: integer
+        - in: header
+          required: true
+          name: userID
+          schema:
+            type: integer
+            
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: La orden con id {orderID} no existe
+
+
+# al loguearse, enviar en el body: username y password,
+# El servidor debera devolver un id que identifique la sesion de la misma (En este proyect, el id representa la id del usuario)
+# y luego pasarlo por el encabezado (header)
+
 components:
   schemas:
-    User:
-      type: object
+    User Register:
       properties:
-        id:
-          type: integer
         username:
           type: string
           example: stejobs20
@@ -55,8 +195,8 @@ components:
           example: Steve Jobs
         email:
           type: string
-          example: steveJobs20@gmail.com
-        number:
+          example: steveJobs20@server.com
+        phoneNumber:
           type: string
           example: "+5412545410"
         address:
@@ -65,5 +205,101 @@ components:
         password:
           type: string
           example: "123456"
-        
-        
+    User:
+      properties:
+        id:
+          type: integer
+          format: int32
+        username:
+          type: string
+          example: stejobs20
+        fullname:
+          type: string
+          example: Steve Jobs
+        email:
+          type: string
+          example: steveJobs20@server.com
+        phoneNumber:
+          type: string
+          example: "+5412545410"
+        address:
+          type: string
+          example: LA, USA 1231
+        password:
+          type: string
+          example: "123456"
+        # pedidos:
+        #   type: array
+        #   items:
+        #     $ref: "#/components/schemas/Pedido"
+    Login:
+      properties:
+        username:
+          type: string
+          example: stejobs20
+        password:
+          type: string
+          example: "123456"
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: id del pedido
+        idUser:
+          type: integer
+          format: int32
+        time:
+          type: string
+          pattern: '^([0-1][0-9]|2[0-3])(:)([0-5][0-9])$'
+          example: '23:59'
+          description: Hora en que se realizo el pedido
+        state:
+          type: string
+          enum:
+            - "Nuevo"
+            - "Confirmado"
+            - "Preparando"
+            - "Enviando"
+            - "Cancelado"
+        products:
+          type: array
+          description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
+          items:
+            type: integer
+            example:
+              - 1
+              - 1
+              - 2
+            # $ref: '#/components/schemas/Dish'
+        paymentMethod:
+          $ref: '#/components/schemas/Payment method'
+    Dish:
+      type: object
+      required:
+        - id
+        - name
+        - price
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          example: "Hamburguesa clásica"
+        price:
+          type: number
+          format: float
+          example: 350.0
+    Payment method:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+          enum:
+            - "Efectivo"
+            - "Contado"
