@@ -7,6 +7,7 @@ module.exports = class User {
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.password = password;
+        this.isAdmin = false;
     }
 }
 

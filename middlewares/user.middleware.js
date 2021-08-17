@@ -1,6 +1,6 @@
-const Users = require('../models/users');
+const { Users } = require('../models/Data');
 
-function HeaderUserIDValidation(req, res, next) {
+function userIDValidation(req, res, next) {
     if (req.header("userID")) {
         const userID = parseInt(req.header("userID"))
         if(!isNaN(userID)) {
@@ -37,4 +37,7 @@ function isAdmin(req, res, next){
     }
 };
 
-module.exports = { isAdmin };
+module.exports = {
+    userIDValidation,
+    isAdmin
+};

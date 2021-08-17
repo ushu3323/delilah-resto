@@ -1,5 +1,5 @@
-const User = require("../models/user");
-const Users = require("../models/users");
+const User = require("../models/User");
+const { Users } = require("../models/Data");
 
 function isRegisterFieldsValid(reqBody) {
     // Comprueba si se enviaron los campos requeridos y si no estan vacios, para poder registrarse

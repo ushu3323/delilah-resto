@@ -120,7 +120,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/New Order'
       responses:
         '200':
           description: OK
@@ -174,7 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/New Order'
         '404':
           description: La orden con id {orderID} no existe
 
@@ -240,6 +240,21 @@ components:
         password:
           type: string
           example: "123456"
+    New Order:
+      type: object
+      properties:
+        dishesId:
+          type: array
+          description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
+          items:
+            type: integer
+            example:
+              - 1
+              - 1
+              - 2
+            # $ref: '#/components/schemas/Dish'
+        paymentMethod:
+          $ref: '#/components/schemas/Payment method'
     Order:
       type: object
       properties:
@@ -258,11 +273,11 @@ components:
         state:
           type: string
           enum:
-            - "Nuevo"
-            - "Confirmado"
-            - "Preparando"
-            - "Enviando"
-            - "Cancelado"
+            - "nuevo"
+            - "confirmado"
+            - "preparando"
+            - "enviando"
+            - "cancelado"
         products:
           type: array
           description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
@@ -292,13 +307,17 @@ components:
           type: number
           format: float
           example: 350.0
+    New Payment method:
+      name:
+        type: string
+        example: "Contado"
     Payment method:
       type: object
       properties:
         id:
           type: integer
           format: int32
-        nombre:
+        name:
           type: string
           enum:
             - "Efectivo"

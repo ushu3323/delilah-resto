@@ -1,4 +1,4 @@
-const User = require("./user");
+const User = require("./User");
 
 module.exports = class Admin extends User {
     constructor(id, username, fullname, email, phoneNumber, address, password){

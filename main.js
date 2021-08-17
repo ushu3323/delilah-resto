@@ -6,6 +6,7 @@ const YAML = require('yamljs');
 const app = express();
 
 const usersRoute = require("./routes/users.routes");
+const ordersRoute = require('./routes/orders.routes');
 const swaggerDocument = YAML.load('./swagger.yaml');
 
 app.use(express.json(), cors());
@@ -18,7 +19,7 @@ const logger = (req, res, next) => {
 // Routes
 app.use(logger)
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-app.use(usersRoute);
+app.use(usersRoute, ordersRoute);
 
 const port = 5000;
 app.listen(port, () => {
