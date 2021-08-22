@@ -8,29 +8,7 @@ servers:
     description: Servidor de desarrollo
 
 paths:
-  # /users/{userId}:
-  #   put:
-  #     tags:
-  #       - Usuario
-  #     summary: Modificar un usuario existente
-  #     description: 'Modifica un usuario existente, solo se puede realizar tanto si el que lo solicita: es el propio usuario o es administrador'
-  #     parameters:
-  #       - in: header
-  #         name: userId
-  #         schema:
-  #           type: integer
-  #         required: true
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/User'      
-  #     responses:
-  #       '200':
-  #         description: OK
-  #       '404':
-  #         description: El usuario no existe
-  /users:
+  /users:           
     get:
       tags:
         - Usuario
@@ -44,15 +22,15 @@ paths:
           required: true
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        '401':
-          description: El usuario no es administrador           
+        '403':
+          description: El usuario no es administrador
     post:
       tags:
         - Usuario
@@ -62,18 +40,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User Register'
+              $ref: '#/components/schemas/New User'
 
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Usuario creado correctamente
         '422':
           description: Datos invalidos
+  
   /login:
     post:
       tags:
         - Usuario
-        - Administrador
       requestBody:
         content:
           application/json:
@@ -82,12 +60,22 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userID:
+                    type: integer
+        '404':
+          description: El usuario no existe
+  
   /orders:
     get:
       tags:
         - Pedidos
       summary: Todos los pedidos
-      description: Devuelve una lista de todos los pedidos realizados por los usuarios, solo los administradores pueden ver esta informacion
+      description: Devuelve una lista de los pedidos realizados por el usuario. Si el usuario es administrador, en cambio,  obtendra un listado de TODOS los pedidos realizados por los usuarios
       parameters:
         - in: header
           name: userId
@@ -103,13 +91,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Order'
-        '401':
+        '403':
           description: El usuario no es administrador
     post:
       tags:
         - Pedidos
       summary: Realizar un pedido
-      description: Realiza un pedido y se lo aplica al usuario indicado en el header. se pondra su estado por defecto a NUEVO
+      description: Realiza un pedido, indicando las ids de los productos a pedir y del metodo de pago
       parameters:
         - in: header
           name: userId
@@ -122,14 +110,16 @@ paths:
             schema:
               $ref: '#/components/schemas/New Order'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Pedido creado correctamente
+  
   /orders/{orderID}:
     get:
       tags:
         - Pedidos
+      deprecated: true
       summary: Pedido especifico
-      description: Devuelve el pedido especificado
+      description: Devuelve el pedido especificado, solo los administradores pueden usar esta ruta
       parameters:
         - in: path
           name: orderID
@@ -154,8 +144,8 @@ paths:
     put:
       tags:
         - Pedidos
-      summary: Pedido especifico
-      description: Modifica el pedido especificado
+      summary: Modificar pedido
+      description: Modifica un pedido en especifico
       parameters:
         - in: path
           name: orderID
@@ -176,35 +166,175 @@ paths:
               schema:
                 $ref: '#/components/schemas/New Order'
         '404':
-          description: La orden con id {orderID} no existe
+          description: La orden con la id especificada, no existe      
+    patch:
+      tags:
+        - Pedidos
+      summary: Modifica el estado del pedido
+      parameters:
+        - in: path
+          name: orderID
+          required: true
+          schema:
+            type: integer
+        - in: header
+          required: true
+          name: userID
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                a:
+                  type: integer
+      
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: La orden con la id especificada, no existe
+  
+  /products:
+    get:
+      tags:
+        - Productos
+      summary: Todos los Productos
+      description: Muestra todos los productos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - Productos
+      summary: Añadir producto
+      description: Añade un nuevo producto
+      requestBody:
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/New Product'
+      responses:
+        '201': 
+          description: Created
+        '403':
+          description: El usuario no es administrador
 
+  /products/{productID}:
+    put:
+      tags:
+        - Productos
+      summary: Modificar producto 
+      description: Modifica los datos de un producto existente 
 
+      requestBody:
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/New Product'
+      responses:
+        '201': 
+          description: Created
+        '404':
+          description: El producto no existe
+        '403':
+          description: El usuario no es administrador
+    patch:
+      tags:
+        - Productos
+      summary: Alta/Baja producto
+      description: Da de alta/baja un producto, define la posibilidad de los usuarios de poder pedir ese productos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: El producto no existe
+        '403':
+          description: El usuario no es administrador
+    delete:
+      tags:
+        - Productos
+      summary: Eliminar producto
+      description: Elimina un producto
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: El producto no existe
+        '403':
+          description: El usuario no es administrador
+                
+  /paymethods:
+    get:
+      tags:
+        - Metodos de pago
+      summary: Todos los metodos de pago
+      description: Devuelve todos los metodos de pago existentes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment method'
+    post:
+      tags:
+        - Metodos de pago
+      summary: Añadir metodo de pago
+      description: Añade un nuevo metodo de pago, solo Administradores
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment method'
+    put:
+      tags:
+        - Metodos de pago
+      summary: Modificar metodo de pago
+      description: Modifica un metodo de pago existente
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment method'
+        '404':
+          description: El metodo de pago no existe
+        '403':
+          description: El usuario no es administrador
+                
+        
 # al loguearse, enviar en el body: username y password,
 # El servidor debera devolver un id que identifique la sesion de la misma (En este proyect, el id representa la id del usuario)
 # y luego pasarlo por el encabezado (header)
 
 components:
   schemas:
-    User Register:
-      properties:
-        username:
-          type: string
-          example: stejobs20
-        fullname:
-          type: string
-          example: Steve Jobs
-        email:
-          type: string
-          example: steveJobs20@server.com
-        phoneNumber:
-          type: string
-          example: "+5412545410"
-        address:
-          type: string
-          example: LA, USA 1231
-        password:
-          type: string
-          example: "123456"
     User:
       properties:
         id:
@@ -232,6 +362,26 @@ components:
         #   type: array
         #   items:
         #     $ref: "#/components/schemas/Pedido"
+    New User:
+      properties:
+        username:
+          type: string
+          example: stejobs20
+        fullname:
+          type: string
+          example: Steve Jobs
+        email:
+          type: string
+          example: steveJobs20@server.com
+        phoneNumber:
+          type: string
+          example: "+5412545410"
+        address:
+          type: string
+          example: LA, USA 1231
+        password:
+          type: string
+          example: "123456"
     Login:
       properties:
         username:
@@ -240,21 +390,6 @@ components:
         password:
           type: string
           example: "123456"
-    New Order:
-      type: object
-      properties:
-        dishesId:
-          type: array
-          description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
-          items:
-            type: integer
-            example:
-              - 1
-              - 1
-              - 2
-            # $ref: '#/components/schemas/Dish'
-        paymentMethod:
-          $ref: '#/components/schemas/Payment method'
     Order:
       type: object
       properties:
@@ -280,17 +415,33 @@ components:
             - "cancelado"
         products:
           type: array
-          description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
+          # description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
           items:
-            type: integer
-            example:
-              - 1
-              - 1
-              - 2
-            # $ref: '#/components/schemas/Dish'
+            $ref: '#/components/schemas/Product'
         paymentMethod:
           $ref: '#/components/schemas/Payment method'
-    Dish:
+    New Order:
+      type: object
+      properties:
+        products:
+          type: array
+          description: ids de los productos a pedir, (en este ejemplo, se solicito tres del producto 1 y solo dos del platillo 2)
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              amount:
+                type: integer
+            example:
+              - {"id": 1, "amount": 3}
+              - {"id": 2, "amount": 2}
+            # $ref: '#/components/schemas/Dish'
+        paymentMethodId:
+          type: integer
+          example: 1
+          # $ref: '#/components/schemas/Payment method'
+    Product:
       type: object
       required:
         - id
@@ -307,10 +458,16 @@ components:
           type: number
           format: float
           example: 350.0
-    New Payment method:
-      name:
-        type: string
-        example: "Contado"
+    New Product:
+      type: object
+      properties:
+        name:
+            type: string
+            example: "Hamburguesa clásica"
+        price:
+          type: number
+          format: float
+          example: 350.0
     Payment method:
       type: object
       properties:
@@ -322,3 +479,7 @@ components:
           enum:
             - "Efectivo"
             - "Contado"
+    New Payment method:
+      name:
+        type: string
+        example: "Contado"

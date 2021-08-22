@@ -4,11 +4,14 @@ const route = require('express').Router()
 const usersC = require('../controllers/users.controller');
 const usersM = require('../middlewares/user.middleware');
 
-// Obtiene todos los usuarios
-route.get('/users', usersM.isAdmin, usersC.allUsers);
+// Sends all the users
+route.get('/users', usersM.idValidation, usersM.isAdmin, usersC.allUsers);
 
-route.post('/users', usersC.validateRegister, usersC.registerUser);
+// Register a new user
+route.post('/users', usersM.validateRegister, usersC.registerUser);
 
-route.post('/login', usersC.login);
+// Send the unique id of the user that is being logged
+route.post('/login', usersM.validateLogin, usersC.login);
+
 
 module.exports = route;

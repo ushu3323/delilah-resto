@@ -1,21 +1,21 @@
 const Admin = require("./Admin");
 const User = require("./User");
 
+// Users en plural, seria como el lugar donde guarda y maneja los usuarios
 class Users {
     constructor() {
         this.list = [
-            new User(1, "queen_freddie", "Freddie Mercury", "freddiemercury@server.com", "+44 7712345678", "1 Logan PIKensington, London W8 6DE, UK", "1234"),
-            new Admin(2, "admin", "Administrador", "admin1234@server.com", "+44 3535236", "20 Street, Rio Grande, AR", "admin"),
+            new Admin(1, "admin", "Administrador", "admin1234@server.com", "+44 3535236", "20 Street, Rio Grande, AR", "admin"),
+            new User(2, "queen_freddie", "Freddie Mercury", "freddiemercury@server.com", "+44 7712345678", "1 Logan PIKensington, London W8 6DE, UK", "1234"),
             // new User(3, "stejobs20", "Steve Jobs", "steveJobs20@server.com", "+44 12545410", "102 Street, LA, US", "123456"),
         ];
     }
     
     _newUser(userdata){
-        const lastUser = this.list[this.list.length-1]
-        const id = lastUser.id || 0
+        const lastUser = this.list.slice(-1)[0];
+        const id = lastUser ? lastUser.id : 0;
         
         return new User(
-            
             id + 1, // Id autoincremental 
             userdata.username,
             userdata.fullName,
@@ -27,30 +27,17 @@ class Users {
     }
     
     register(userdata){
-        console.log("Intento de registro de Usuario:", userdata);
+        console.log("Usuario registrado:", userdata);
         this.list.push(this._newUser(userdata));
         // console.log("LISTA", this.list);
     }
-
-    login(logindata){
-        let l = logindata;
-        let user = this.list.find(e => l.username === e.username);
-
-        if (user.username){
-
-        }
-        
-        console.log("Usuario Logueado correctamente!", user);
-    }   
-
 }
 
 const Order = require('./Order');
 class Orders {
     constructor(){
-        const { Dishes, PaymentMethods} = Data;
         this.list = [
-            new Order(1, 1, Dishes.get(1,1), PaymentMethods.getId("Efectivo"))
+            new Order(1, 1, new PaymentMethod(1, "Efectivo"), new Product(1, "Hamburguesa Clásica", 350.0))
         ]
     }
 
@@ -60,38 +47,87 @@ class Orders {
     }
 }
 
-const Dish = require('./Dish');
-class Dishes {
+const Product = require('./Product');
+class Products {
     constructor() {
         this.list = [
-            new Dish(1, "Hamburguesa Clásica", 350.0),
+            new Product(1, "Hamburguesa Clásica", 350.0),
+            new Product(2, "Bagel de salmòn", 350.0, true),
         ];
+    }
+    add(name, price) {
+        const lastUser = this.list.slice(-1)[0];
+        const id = lastUser ? lastUser.id : 0;
+
+        this.list.push(new Product(id+1,name,price));
+    }
+
+    setIdProductEnabled(id, enabled) {
+        const product = this.list.find(p => p.id === id);
+        product.enabled = enabled;
     }
     
     /**
-     * Devuelve el primer platillo encontrado
-     *  @param x valor a buscar, si es number buscara por id, si es string buscara por nombre
-     *  @param amount Cantidad de platillos, por defecto `1`
+     * Returns a copy of the first product that satisfies the value to search, useful when making orders
+     *  @param x value to compare, if it is Number search by id, otherwise search by name
+     *  @param amount Amount of products
      */
-    get(x, amount=1){
+    getCopy(x, amount=0){
         
-        let dish; 
+        let product; 
         switch (typeof x) {
             case "string":
-                dish = this.list.find(d => d.name === x);
+                product = this.list.find(d => d.name === x);
                 break;
             case "number":
-                dish = this.list.find(d => d.id === x);
+                product = this.list.find(d => d.id === x);
                 break;
             default:
                 throw new Error(`El tipo tiene que ser 'string' o 'number', se encontro ${typeof x}`);
                 break;
         }
-        if (dish){
-            dish.amount = amount;
-        }
-        return dish
+        // Returns a copy of the product, with the "amount" property
+        return {...product, amount: amount};
+        
+        return product; // Returns the product from the list, this can be edited and will be applied too in the list
     }
+    /**
+     * Returns the first product that satisfies the value to search
+     *  @param x value to compare, if it is Number search by id, otherwise search by name
+     */
+    get(x) {
+        let product = null;
+        switch (typeof x) {
+            case "string":
+                product = this.list.find(d => d.name === x);
+                break;
+            case "number":
+                product = this.list.find(d => d.id === x);
+                break;
+            default:
+                throw new Error(`El tipo tiene que ser 'string' o 'number', se encontro ${typeof x}`);
+                break;
+            }
+
+            // Returns the product of the list, this can be edited and each change will be reflected in the list
+            return product;
+    }
+
+    get listEnabled () {
+        const enabledProducts = [];
+        this.list.forEach(product => {
+            if(product.enabled){
+                enabledProducts.push({...product});
+            }
+        });
+
+        // Removes "enabled" parameter to all the products before sending the response
+        enabledProducts.map(product => {
+            delete product.enabled;
+            return product;
+        });
+        return enabledProducts
+    }   
 }
 
 const PaymentMethod = require('./PaymentMethod');
@@ -112,7 +148,13 @@ class PaymentMethods {
 const Data = {
     Users: new Users(),
     Orders: new Orders(),
-    Dishes: new Dishes(),
+    Products: new Products(),
     PaymentMethods: new PaymentMethods(),
 }
+
+function addTestValues(){
+    const { Users, Orders, Products, PaymentMethods} = Data;
+}
+
+
 module.exports = Data;

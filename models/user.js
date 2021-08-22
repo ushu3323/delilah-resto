@@ -8,6 +8,7 @@ module.exports = class User {
         this.address = address;
         this.password = password;
         this.isAdmin = false;
+        this.activeOrder = null; // Id of the active order
     }
 }
 
