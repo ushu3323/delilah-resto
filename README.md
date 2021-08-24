@@ -6,9 +6,9 @@ API de gestion del restaurante
 ### express:
  Responsable de responder a las peticiones
 ### swagger-ui-express:
- Ofrece una interfaz web para mostrar la documentacion
+ Ofrece una interfaz web para mostrar la documentación
 ### yamljs:
- Transforma un archivo yaml a objeto javascript
+ Transforma un archivo yaml a objeto javascript, util para poder mostrar la documentacion (realizado en el archivo `swagger.yaml`) con swagger-ui-express
 
 # Instalación
 
@@ -24,4 +24,4 @@ npm start
 
 Por defecto, utilizara el puerto `5000`
 
-Para mas informacion acerca de como interactuar con la API, dirijase a la ruta `/docs` del servidor
+Para mas informacion acerca de como interactuar con la API, dirijase a la ruta `/docs` del servidor iniciado

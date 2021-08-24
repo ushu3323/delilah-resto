@@ -1,7 +1,5 @@
 const Admin = require("./Admin");
 const User = require("./User");
-
-// Users en plural, seria como el lugar donde guarda y maneja los usuarios
 class Users {
     constructor() {
         this.list = [
@@ -36,14 +34,27 @@ class Users {
 const Order = require('./Order');
 class Orders {
     constructor(){
+        let testOrderProduct = new Product(1, "Hamburguesa Clásica", 350.0)
+        testOrderProduct.amount = 10;
+
         this.list = [
-            new Order(1, 1, new PaymentMethod(1, "Efectivo"), new Product(1, "Hamburguesa Clásica", 350.0))
+            new Order(1, 1, [testOrderProduct], new PaymentMethod(1, "Efectivo"))
         ]
+    }
+
+    new(userId, products, paymentMethodId){
+        const payMethod = Data.PaymentMethods.getById(paymentMethodId);
+        const lastOrder = this.list.slice(-1)[0];
+        const lastId = lastOrder ? lastOrder.id : 0;
+
+        const newOrder = new Order(lastId+1, userId, products, payMethod);
+        this.list.push(newOrder);
+        return newOrder;
     }
 
     getOrder(orderId) {
         const order = this.list.find(o => o.id === orderId);
-        return order
+        return order;
     }
 }
 
@@ -107,7 +118,7 @@ class Products {
             default:
                 throw new Error(`El tipo tiene que ser 'string' o 'number', se encontro ${typeof x}`);
                 break;
-            }
+        }
 
             // Returns the product of the list, this can be edited and each change will be reflected in the list
             return product;
@@ -138,10 +149,15 @@ class PaymentMethods {
             new PaymentMethod(2, "Contado"),
         ];
     }
-
-    get(paymentName){
-        const pMethod = this.list.find(p => p.name);
-        return pMethod ? pMethod.id : null
+    getById(id) {
+        const pMethod = this.list.find(p => p.id === id);
+        if (pMethod) return pMethod;
+        else throw new Error(`There's no payment method with id: ${id}`) 
+    }
+    getByName(name) {
+        const pMethod = this.list.find(p => p.name === name);
+        if (pMethod) return pMethod;
+        else throw new Error(`There's no payment method with name: ${name}`);
     }
 }
 

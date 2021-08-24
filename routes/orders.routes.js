@@ -1,12 +1,39 @@
 const route = require('express').Router();
+
 const usersM = require('../middlewares/user.middleware');
+const ordersM = require('../middlewares/orders.middleware');
+const ordersC = require('../controllers/orders.controller');
 
-const { Orders } = require('../models/Data');
 
-route.get('/orders', usersM.idValidation, (req, res) => {
-    res.status(200).json({Orders});
-});
+route.use(usersM.idHeaderValidation);
 
-route.post('/orders', usersM.idValidation, (req, res) => {})
+route.get('/orders', ordersC.getOrders); 
+
+route.post(
+    '/orders',
+    ordersM.validateNewOrder,
+    ordersC.addOrder
+);
+
+
+route.put('/orders/:orderId',
+    ordersM.orderExists,
+    ordersM.validateNewOrder,
+    usersM.isAdminMiddle(
+        (req,res,next) => {next()},
+        ordersM.canEditOrder,
+    ), 
+    ordersC.editOrder
+);
+
+route.patch('/orders/:orderId',
+    ordersM.orderExists,
+    usersM.idHeaderValidation, ordersM.orderExists, ordersM.validateOrderStatus,
+    usersM.isAdminMiddle(
+        (req,res,next) => {next()},
+        ordersM.canSetOrderStatus
+    ),
+    ordersC.editOrderStatus
+)
 
 module.exports = route;

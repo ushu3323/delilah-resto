@@ -5,7 +5,7 @@ const usersC = require('../controllers/users.controller');
 const usersM = require('../middlewares/user.middleware');
 
 // Sends all the users
-route.get('/users', usersM.idValidation, usersM.isAdmin, usersC.allUsers);
+route.get('/users', usersM.idHeaderValidation, usersM.isAdmin, usersC.allUsers);
 
 // Register a new user
 route.post('/users', usersM.validateRegister, usersC.registerUser);

@@ -97,22 +97,19 @@ function validateLogin (req, res, next) {
     
 }
 
-function idValidation(req, res, next) {
+function idHeaderValidation(req, res, next) {
     if (!req.header("userID")) {
-        res.status(422).json({
-            error: "Se esperaba userID en header",
-        });        
+        res.status(422).json({error: "Se esperaba userID en header"});        
         return;
     }
     
     const userID = parseInt(req.header("userID"))
-    if(!isNaN(userID) && Users.list.find(u => u.id === userID)) {
-        next();
-    } else {
-        res.status(422).json({
-            msg: "userID no es valido"
-        });
+    const user = Users.list.find(u => u.id === userID);
+    if(isNaN(userID) && !user) {
+        res.status(422).json({error: "userID no es valido"});
+        return;
     }
+    next();
 }
 
 function isAdmin(req, res, next){
@@ -130,9 +127,20 @@ function isAdmin(req, res, next){
     }
 };
 
+function isAdminMiddle(adminMiddleware, userMiddleware) {
+    return (req,res,next) => {
+        const userID = parseInt(req.header("userID"));
+        const user = Users.list.find( u => u.id === userID);
+    
+        if(user.isAdmin) adminMiddleware(req,res,next);
+        else userMiddleware(req,res,next);
+    }
+}
+
 module.exports = {
     validateRegister,
     validateLogin,
-    idValidation,
+    idHeaderValidation,
+    isAdminMiddle,
     isAdmin
 };

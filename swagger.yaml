@@ -8,7 +8,7 @@ servers:
     description: Servidor de desarrollo
 
 paths:
-  /users:           
+  /users:
     get:
       tags:
         - Usuario
@@ -89,8 +89,22 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+                items: 
+                  allOf:
+                    - $ref: '#/components/schemas/Order'
+                    - type: object
+                      properties:
+                        products:
+                          type: array
+                          items:
+                            allOf:
+                            - $ref: '#/components/schemas/Product'
+                            - type: object
+                              properties:
+                                amount:
+                                  type: integer
+                  
+                  
         '403':
           description: El usuario no es administrador
     post:
@@ -433,9 +447,9 @@ components:
                 type: integer
               amount:
                 type: integer
-            example:
-              - {"id": 1, "amount": 3}
-              - {"id": 2, "amount": 2}
+          example:
+            - {"id": 1, "amount": 3}
+            - {"id": 2, "amount": 2}
             # $ref: '#/components/schemas/Dish'
         paymentMethodId:
           type: integer
