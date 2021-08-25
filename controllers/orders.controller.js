@@ -13,18 +13,16 @@ function getOrders (req, res) {
     }
 }
 
-function orderProductsToProductsObj(orderProducts){
-    const productsObjs = products.map(dataPair => {
-        const { id, amount } = dataPair;
-        return Products.getCopy(id, amount);
-    });
-}
-
 function addOrder (req,res) {
     const { products, paymentMethodId } = req.body;
     const userID = parseInt(req.header("userID"));
     
-    Orders.new(userID, orderProductsToProductsObj(products), paymentMethodId);
+    const productsObjs = products.map(dataPair => {
+        const { id, amount } = dataPair;
+        return Products.getCopy(id, amount);
+    });
+    
+    Orders.new(userID, productsObjs, paymentMethodId);
     res.sendStatus(201);
 };
 

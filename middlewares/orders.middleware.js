@@ -36,6 +36,12 @@ function validateNewOrder(req, res, next) {
             res.status(422).json({error: "Los productos son invalidos"});
             return;
         }
+        const productObj = Products.get(id) 
+        if (!productObj || !productObj.enabled){
+            res.status(422).json({error: `El producto con id ${id} no existe`}); // No existe para el usuario
+            return;
+        }
+
     });
 
     next();
