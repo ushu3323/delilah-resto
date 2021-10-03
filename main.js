@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require('cors');
+const morgan = require('morgan');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
 
@@ -12,21 +13,22 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 const usersRoute = require("./routes/users.routes");
 const ordersRoute = require('./routes/orders.routes');
 const productsRoute = require("./routes/products.routes");
-
+/* 
 const logger = (req, res, next) => {
     const date = new Date();
     console.log(`[${date.toLocaleTimeString()}]`, req.method, req.path);
     next();
 }
-
+*/
 app.use(express.json(), cors());
-app.use(logger);
+app.use(morgan('tiny'));
+// app.use(logger);
 
 // Routes
 
 // Homepage like route
 app.get("/", (req,res) =>{
-    res.send("<h2>Servicio de gestion de pedidos del restaurante \"Delilah Restó\"</h2><p>Porfavor, dirigase a /docs para mas informacion acerca de como usar esta API</p>");
+    res.send("<h2>Servicio de gestion de pedidos del restaurante \"Delilah Restó\"</h2><p>Porfavor, dirigase a <a href='/docs'>/docs</a> para mas informacion acerca de como usar esta API</p>");
 });
 
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
