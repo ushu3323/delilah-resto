@@ -23,13 +23,14 @@ app.use(express.json(), cors());
 app.use(logger);
 
 // Routes
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-app.use(usersRoute, ordersRoute, productsRoute);
 
 // Homepage like route
 app.get("/", (req,res) =>{
     res.send("<h2>Servicio de gestion de pedidos del restaurante \"Delilah Restó\"</h2><p>Porfavor, dirigase a /docs para mas informacion acerca de como usar esta API</p>");
 });
+
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use(usersRoute, ordersRoute, productsRoute);
 
 
 app.listen(config.node.port, () => {
