@@ -2,12 +2,11 @@ const express = require("express");
 const cors = require('cors');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
-require('dotenv').config()
 
-const port = process.env.NODE_PORT || 3000;
+const config = require('./config');
+
 const app = express();
 const swaggerDocument = YAML.load('./swagger.yaml');
-
 
 // Routes
 const usersRoute = require("./routes/users.routes");
@@ -16,7 +15,6 @@ const productsRoute = require("./routes/products.routes");
 
 const logger = (req, res, next) => {
     const date = new Date();
-    
     console.log(`[${date.toLocaleTimeString()}]`, req.method, req.path);
     next();
 }
@@ -34,6 +32,6 @@ app.get("/", (req,res) =>{
 });
 
 
-app.listen(port, () => {
-    console.log(`Listening at port: ${port}`);
+app.listen(config.node.port, () => {
+    console.log(`Listening at port: ${config.node.port}`);
 });
