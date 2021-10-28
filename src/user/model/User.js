@@ -1,5 +1,6 @@
 const { Model, DataTypes} = require('sequelize');
 const sequelize = require('../../connection/sequelize');
+const Order = require('../../order/model/Order');
 
 class User extends Model {}
 
@@ -38,7 +39,9 @@ User.init({
     },
 }, {sequelize, modelName: "user"});
 
-/* (async () => {
+User.Order = User.hasMany(Order);
+
+(async () => {
     await sequelize.sync({force: false});
 
     await User.create({
@@ -51,7 +54,7 @@ User.init({
         isAdmin: true,
         enabled: true,
     })
-})() */
+})()
 
 
 module.exports = User;

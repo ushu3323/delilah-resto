@@ -1,9 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../connection/sequelize');
-const Order = require('../../order/model/Order');
-const OrderProducts = require('../../order/model/OrderProducts');
 
-class Product extends Model { }
+class Product extends Model {}
 
 Product.init({
   name: {
@@ -24,7 +22,7 @@ Product.init({
   },
 }, { sequelize, modelName: "product" });
 
-Product.belongsToMany(Order, { through: OrderProducts });
+// Product.belongsToMany(Order, { through: OrderProducts });
 
 /* (async () => {
     await sequelize.sync({force: false});

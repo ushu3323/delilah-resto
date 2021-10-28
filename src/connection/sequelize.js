@@ -8,7 +8,6 @@ const connection = new Sequelize.Sequelize(
 (async () => {
   try {
     await connection.authenticate();
-    await connection.sync();
     // console.log("Connected succesfully");
   } catch (err) {
     console.error("Unable to connect to the database", err);

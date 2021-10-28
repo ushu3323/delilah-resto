@@ -1,10 +1,20 @@
+const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../connection/sequelize');
 
-const OrderProducts = sequelize.define('OrderProducts', {
+const Order = require('../../order/model/Order');
+const Product = require('../../product/model/Product');
+
+class OrderProducts extends Model {}
+
+
+OrderProducts.init({
   amount: {
-    type: sequelize.INTEGER,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-});
+}, {sequelize, modelName: 'order_products'});
+
+Order.belongsToMany(Product, { through: OrderProducts });
+Product.belongsToMany(Order, { through: OrderProducts });
 
 module.exports = OrderProducts;
