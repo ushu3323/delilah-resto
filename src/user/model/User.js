@@ -1,81 +1,57 @@
-module.exports = class User {
-    constructor (id, username, fullname, email, phoneNumber, address, password){
-        this.id = id;
-        this.username = username;
-        this.fullname = fullname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.password = password;
-        this.isAdmin = false;
-        this.activeOrder = null; // Id of the active order
-    }
-}
+const { Model, DataTypes} = require('sequelize');
+const sequelize = require('../../connection/sequelize');
 
-const parameters = ["usuario", "nombre_completo", "email", "tel", "password"];
+class User extends Model {}
 
+User.init({
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    fullName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    isAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    enabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+}, {sequelize, modelName: "user"});
 
-//#region Users
-function isDataValid(user_register){
-    user_register.keys().forEach(p => {
-        // Comprueba si se ha ingresado SOLO parametros solicitados
-        if(!parameters.includes(p)){
-            return false;
-        }
-    });
+/* (async () => {
+    await sequelize.sync({force: false});
 
-    // Comprueba si se han recibido todos los parametros solicitados
-    parameters.forEach(p => {
-        if(!user_register.HasOwnProperty(p)){
-            return false;
-        }
-    });
-
-    // Se realizaron todas las validaciones
-    return true
-}
-
-
-function userValidation(user){
-    // Comprueba si el mail no se ha utilizado
-    let v = {
-        valid: true,
-        email: true,
-        name: true,
-        property: true
-    };
-    // Valida mail
-    users.forEach(e_user => {
-        if (e_user.email === user.email) {
-            v.email = false;
-        }
-    });
-    
-
-    v.valid = v.email && v.name; // Si todo esta en condiciones para registrar
-    console.log("validacion:", v)
-    return v;
-}
-
-function errorCauseMsg(validacion){
-    let v = validacion;
-    if (!v.email){
-        return "El email ingresado ya esta registrado";
-    } else if (!v.name){
-        return "El nombre debe contener solo caracteres validos [a-zA-Z]"
-    } else if (false){
-
-    }
-}
-//#endregion
-
-function userLogin(login_json){
-    let l = login_json;
-    users.forEach(e =>{
-        if(l.user === e.user){
-            if(l.pass === e.pass){
-
-            }
-        }
+    await User.create({
+        username:"admin",
+        fullName:"ADMIN",
+        email: "admin@example.com",
+        phoneNumber: "123-456",
+        address: "Street Address",
+        password: "secretpass",
+        isAdmin: true,
+        enabled: true,
     })
-}
+})() */
+
+
+module.exports = User;

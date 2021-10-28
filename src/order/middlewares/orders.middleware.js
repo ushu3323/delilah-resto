@@ -69,7 +69,6 @@ function canEditOrder(req,res,next) {
     const orderId = parseInt(req.params.orderId);
     const order = Orders.getOrder(orderId);
 
-
     if (order.status !== orderStatuses.NUEVO) {
         res.status(422).json({
             error: "No se puede editar un pedido confirmado, pruebe cancelandolo y creando un nuevo pedido"
@@ -77,7 +76,7 @@ function canEditOrder(req,res,next) {
         return;
     }
     
-    if (order.idUser !== userID){
+    if (order.userId !== userID){
         res.status(401).json({
             error: "No es posible editar este pedido, solo se permiten modificar pedidos propios"
         });
@@ -125,7 +124,7 @@ function canSetOrderStatus(req,res,next) {
     }
 
 
-    if (order.idUser !== userID){
+    if (order.userId !== userID){
         res.status(401).json({
             error: "No se puede editar este pedido, solo se permite modificar pedidos propios"
         });

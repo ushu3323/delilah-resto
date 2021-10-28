@@ -1,34 +1,34 @@
 const route = require('express').Router();
 
-const userM = require('../../user/middlewares/user.middleware');
+const userM = require('../../user/middlewares/users.middleware');
 const productM = require('../middlewares/product.middleware')
 const productC = require('../controllers/product.controller');
 
-// Send the list of products
-route.get('/products', userM.idHeaderValidation, productC.listProducts);
+// Returns a list of products
+route.get('/', userM.authenticate, productC.getProducts);
 
 // Add a new product
 route.post(
-    '/products',
-    userM.idHeaderValidation, userM.isAdmin, productM.validateNewProduct,
+    '/',
+    userM.authenticate, userM.isAdmin, productM.validateNewProduct,
     productC.addNewProduct
 );
 
 route.put(
-    '/products/:productId',
-    userM.idHeaderValidation, userM.isAdmin, productM.idValidation, productM.validateEditProduct,
+    '/:productId',
+    userM.authenticate, userM.isAdmin, productM.idValidation, productM.validateEditProduct,
     productC.editProduct
 );
 
 route.patch(
-    '/products/:productId',
-    userM.idHeaderValidation, userM.isAdmin, productM.idValidation, productM.validateProductEnabled,
+    '/:productId',
+    userM.authenticate, userM.isAdmin, productM.idValidation, productM.validateProductEnabled,
     productC.setProductEnabled
 );
 
 route.delete(
-    '/products/:productId',
-    userM.idHeaderValidation, userM.isAdmin, productM.idValidation,
+    '/:productId',
+    userM.authenticate, userM.isAdmin, productM.idValidation,
     productC.deleteProduct
 );
 

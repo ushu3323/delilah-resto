@@ -36,13 +36,10 @@ function deleteProduct(req, res) {
     res.status(200).json({msg: "Se ha eliminado correctamente", product: deleted});
 }
 
-function listProducts(req, res){
+function getProducts(req, res){
     // Lists the products and send depending of the role of the user that sent the request
-    const userID = parseInt(req.header("userID"));
-    const user = Users.list.find( u => u.id === userID);
-
     // Check if the user is admin and if so, sends all the products
-    if (user.isAdmin) {
+    if (req.user.isAdmin) {
         res.status(200).json(Products.list);
     } else {
         // Otherwise, it just sends a list of enabled products
@@ -56,5 +53,5 @@ module.exports = {
     addNewProduct,
     editProduct,
     deleteProduct,
-    listProducts,
+    getProducts,
 }

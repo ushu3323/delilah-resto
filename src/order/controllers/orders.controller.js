@@ -1,6 +1,7 @@
 const { Orders, Users, Products, PaymentMethods } = require("../../models/Data");
 
 function getOrders (req, res) {
+    console.log("On GET /:orderId")
     const userID = parseInt(req.header("userID"));
     const user = Users.list.find(u => u.id === userID);
     
@@ -9,11 +10,12 @@ function getOrders (req, res) {
         res.status(200).json(Orders.list); 
     } else {
         console.log("Getting orders of:", user);
-        res.status(200).json(Orders.list.filter(order => order.idUser === userID));
+        res.status(200).json(Orders.list.filter(order => order.userId === userID));
     }
 }
 
 function addOrder (req,res) {
+    console.log("On POST /:orderId")
     const { products, paymentMethodId } = req.body;
     const userID = parseInt(req.header("userID"));
     
@@ -27,6 +29,7 @@ function addOrder (req,res) {
 };
 
 function editOrder (req, res) {
+    console.log("On PUT /:orderId")
     const { products, paymentMethodId } = req.body;
     const orderId = parseInt(req.params.orderId);
     const order = Orders.getOrder(orderId);

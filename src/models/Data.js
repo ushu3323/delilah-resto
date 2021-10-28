@@ -1,9 +1,10 @@
-const Admin = require("../user/model/Admin");
+//const Admin = require("../user/model/Admin");
 const User = require("../user/model/User");
+
 class Users {
     constructor() {
         this.list = [
-            new Admin(1, "admin", "Administrador", "admin1234@server.com", "+44 3535236", "20 Street, Rio Grande, AR", "admin"),
+            // new Admin(1, "admin", "Administrador", "admin1234@server.com", "+44 3535236", "20 Street, Rio Grande, AR", "admin"),
             new User(2, "queen_freddie", "Freddie Mercury", "freddiemercury@server.com", "+44 7712345678", "1 Logan PIKensington, London W8 6DE, UK", "1234"),
             // new User(3, "stejobs20", "Steve Jobs", "steveJobs20@server.com", "+44 12545410", "102 Street, LA, US", "123456"),
         ];
@@ -67,8 +68,8 @@ class Products {
         ];
     }
     add(name, price) {
-        const lastUser = this.list.slice(-1)[0];
-        const id = lastUser ? lastUser.id : 0;
+        const lastproduct = this.list.slice(-1)[0];
+        const id = lastproduct ? lastproduct.id : 0;
 
         this.list.push(new Product(id+1,name,price));
     }
@@ -100,7 +101,7 @@ class Products {
         // Returns a copy of the product, with the "amount" property
         return {...product, amount: amount};
         
-        return product; // Returns the product from the list, this can be edited and will be applied too in the list
+        // return product; // Returns the product from the list, this can be edited and will be applied too in the list
     }
     /**
      * Returns the first product that satisfies the value to search

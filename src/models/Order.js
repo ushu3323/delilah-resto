@@ -1,9 +1,9 @@
 const orderStatuses = require("./OrderStatuses");
 
 class Order {
-    constructor (id, idUser, products, paymentMethod){
+    constructor (id, userId, products, paymentMethod){
         this.id = id;
-        this.idUser = idUser;
+        this.userId = userId;
         this.time = new Date().toLocaleString();
         this.products = products;
         this.paymentMethod = paymentMethod;
