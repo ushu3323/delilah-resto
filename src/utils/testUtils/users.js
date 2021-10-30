@@ -58,11 +58,14 @@ const getToken = async (user) => {
 const initUsers = async () => {
   const users = [placeholders.admin, placeholders.user];
   for await (let user of users) {
-    await userRepository.create(user)
+    await userRepository.create(user);
     user.token = await getToken(user);
   }
 }
 
+(async () => {
+  console.log((await getToken(placeholders.admin)));
+})();
 
 module.exports = {
     deleteUsers,

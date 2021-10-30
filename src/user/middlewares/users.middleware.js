@@ -4,30 +4,29 @@ const userRepository = require('../repositories/user.repository');
 
 function isRegisterFieldsValid(reqBody) {
     // Comprueba si se enviaron los campos requeridos y si no estan vacios, para poder registrarse
-
     const { username, fullName, email, phoneNumber, address, password } = reqBody;
 
-    // Cuando se utiliza typeof para 'undefined' y 'null', este devuelve 'object', por lo que no afectaria al proposito de comprobar si los campos existen
-
-    if (typeof username === "string" &&
+    /* Cuando se utiliza typeof para una variable que esta 'undefined' y 'null',
+     este devuelve 'object', por lo que permite comprobar si el campo existe
+      y si es del tipo esperado, todo en una sola condicional.
+    */
+    const expectedFieldsType = (
+        typeof username === "string" &&
         typeof fullName === "string" &&
         typeof email === "string" &&
         typeof phoneNumber === "string" &&
         typeof address === "string" &&
         typeof password === "string"
-    ) {
-        if (username !== "" &&
-            fullName !== "" &&
-            email !== "" &&
-            phoneNumber !== "" &&
-            address !== "" &&
-            password !== ""
-        ) {
-            return true;
-        }
-    }
-
-    return false;
+    )
+    const expectedFieldsValue = (
+        username !== "" &&
+        fullName !== "" &&
+        email !== "" &&
+        phoneNumber !== "" &&
+        phoneNumber !== "" &&
+        password !== ""
+    )
+    return expectedFieldsType && expectedFieldsValue;
 }
 
 async function validateRegister(req, res, next) {
@@ -114,15 +113,20 @@ function jwtDecode(token) {
 
 async function authenticate(req,res,next){
     const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: "No se encontro token" });
+    if (!token) return res.status(401).json({ error: "No se encontro un token" });
 
     const jwtDecoded = jwtDecode(token);
-    if(jwtDecoded){
+    try {
+      if(jwtDecoded){
         req.jwtUser = jwtDecoded;
         req.user = await userRepository.get.byEmail(jwtDecoded.email);
         next();
-    } else {
-        res.status(403).json({ msg: "No autenticado", error: true });
+      } else {
+        return res.status(403).json({ msg: "token invalido", error: true });
+      }
+    } catch (error) {
+      console.log("JWT Error:", error.message);
+      next(error);
     }
 }
 

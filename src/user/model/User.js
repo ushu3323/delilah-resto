@@ -41,7 +41,7 @@ User.init({
 
 User.Order = User.hasMany(Order);
 
-(async () => {
+/* (async () => {
     await sequelize.sync({force: false});
 
     await User.create({
@@ -54,7 +54,7 @@ User.Order = User.hasMany(Order);
         isAdmin: true,
         enabled: true,
     })
-})()
+})() */
 
 
 module.exports = User;
