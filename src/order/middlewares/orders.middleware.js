@@ -1,6 +1,8 @@
 const { Products, Orders } = require("../../models/Data");
 const Order = require("../../models/Order");
 const orderStatuses = require("../../models/OrderStatuses");
+const productRepository = require("../../product/repositories/product.repository");
+const orderRepository = require("../repository/order.repository");
 
 function orderExists(req,res,next) {
     const orderId = parseInt(req.params.orderId);
@@ -10,39 +12,37 @@ function orderExists(req,res,next) {
     }
     
     if (!Orders.getOrder(orderId)){
-        res.status(404).json({error: `La orden con id ${orderId} no existe`});
+        res.status(404).json({msg: `La orden con id ${orderId} no existe`});
         return;
     }
     next();
 }
 
-function validateNewOrder(req, res, next) {
+async function validateNewOrder(req, res, next) {
     const { products, paymentMethodId } = req.body;
-
+    
     if (!(typeof products === "object" && Array.isArray(products)) || typeof paymentMethodId !== "number") {
         res.status(422).json({error: "Los campos son invalidos"});
         return;
     }
     
     // Validates if every object in the products array contains the required parameters (name, amount)
-    products.forEach(product => {
+    for (let product of products) {
         const { id, amount } = product;
         if (!(id && amount)) {
             res.status(422).json({error: "Los productos son invalidos"});
             return;
         }
-
         if (typeof id !== "number" && typeof amount !== "number"){
             res.status(422).json({error: "Los productos son invalidos"});
             return;
         }
-        const productObj = Products.get(id) 
-        if (!productObj || !productObj.enabled){
+        const productObj = await productRepository.get.byId(id);
+        if (!(productObj?.enabled)){
             res.status(422).json({error: `El producto con id ${id} no existe`}); // No existe para el usuario
             return;
         }
-
-    });
+    }
 
     next();
 }

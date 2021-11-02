@@ -8,22 +8,17 @@ const productTemplate = {
 
 module.exports = {
   get:{
-    byId: async (id) => {
-      return await Product.findById(id);
-    },
-    all: async () => {
-      return await Product.find();
-    }
+    byId: async (id) => await Product.findByPk(id),
+    all: async () => await Product.findAll(),
+    enabled: async () => await Product.findAll({
+        where: {
+          enabled: true
+        }
+    })
   },
   del:{
-    byId: async (id) => {
-      await Product.findByIdAndDelete(id);
-    },
+    byId: async (id) => await Product.destroy({where: {id: id}}),
   },
-  create: async (product) => {
-    await Product.create(product);
-  },
-  update: async (id, product) => {
-    await Product.findByIdAndUpdate(id, product);
-  }
+  create: async (product) => await Product.create(product),
+  update: async (id, product) => await Product.findByIdAndUpdate(id, product),
 }
