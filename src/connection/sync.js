@@ -6,12 +6,17 @@ const paymentMethod = require('../paymentMethod/model/PaymentMethod');
 
 const sequelize = require('../connection/sequelize');
 
+const sync_models = async () => {
+  try {
+    await sequelize.authenticate()
+    console.log("Authenticated successfully")
+    await sequelize.sync({ force: true, alter:false });
+    console.log(`Syncronized "${sequelize.config.database}" database!`);
+  } catch (error) {
+    console.error(error.cause);
+  }
 
-(async () => {
-  await sequelize.sync({force: false, alter:false, });
-  console.log('Database & tables created!');
-
-  const [testUser, user_created] = await User.findOrCreate({
+  /* const [testUser, user_created] = await User.findOrCreate({
     where: { email: 'testuser@example.com' },
     defaults:{
       username: 'user',
@@ -54,4 +59,8 @@ const sequelize = require('../connection/sequelize');
     where: { email: 'testuser@example' },
   });
   console.log('user', finalUser);
-})();
+  */
+}; 
+
+
+sync_models()

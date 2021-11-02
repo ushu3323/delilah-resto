@@ -1,4 +1,6 @@
 const { Products } = require("../../models/Data");
+const productRepository = require('../repositories/product.repository');
+
 
 function validateNewProduct(req,res,next) {
     const { name, price } = req.body;
@@ -12,7 +14,7 @@ function validateNewProduct(req,res,next) {
 
 function idValidation(req, res, next) {
     const productId = parseInt(req.params.productId);
-
+    req.product = productRepository
     if (isNaN(productId)) {
         res.status(422).json({error: "La id del producto es invalida"});
         return;

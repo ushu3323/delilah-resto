@@ -114,8 +114,8 @@ describe('#users', function () {
 
   afterEach(function () {
     if (this.currentTest.state == "failed") {
-      console.log("\t- status code:", testResponse.statusCode);
-      console.log("\t- res.body:", testResponse.body);
+      console.log("\t- status code:", testResponse?.statusCode);
+      console.log("\t- res.body:", testResponse?.body);
     }
     testResponse = {statusCode: null, body: null};
   });

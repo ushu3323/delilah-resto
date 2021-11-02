@@ -15,7 +15,6 @@ function getOrders (req, res) {
 }
 
 function addOrder (req,res) {
-    console.log("On POST /:orderId")
     const { products, paymentMethodId } = req.body;
     const userID = parseInt(req.header("userID"));
     

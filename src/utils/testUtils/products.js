@@ -1,33 +1,41 @@
+const productRepository = require('../../product/repositories/product.repository');
 
 const placeholders = [
   {
-    name: 'Hamburger',
-    price: 10,
-    category: 'food',
+    name: 'Testproduct1',
+    price: 100,
+    category: 'test',
+    enabled: true
   },
   {
-    name: 'Fries',
-    price: 5,
-    category: 'food',
-  },
-  {
-    name: 'Coke',
-    price: 3,
-    category: 'drink',
-  },
-  {
-    name: 'Pepsi',
-    price: 3,
-    category: 'drink',
-  },
-  {
-    name: 'Coffee',
-    price: 2,
-    category: 'drink',
-  },
-  {
-    name: 'Tea',
-    price: 1,
-    category: 'drink',
+    name: 'Testproduct2',
+    price: 200,
+    category: 'test',
+    enabled: false
   },
 ];
+
+async function initProducts() {
+  for await (let product of placeholders){
+    const {id} = await productRepository.create(product);
+    product.id = id;
+  }
+}
+
+async function deleteProducts() {
+  for await (let product of placeholders) {
+    await productRepository.del.byId(product.id)
+  }
+}
+
+async function getLastProductId() {
+  const products = await productRepository.get.all()
+  return products[products.length - 1]?.id || 0;
+}
+
+module.exports = {
+  placeholders,
+  getLastProductId,
+  initProducts,
+  deleteProducts
+};

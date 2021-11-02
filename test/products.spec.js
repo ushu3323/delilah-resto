@@ -2,7 +2,7 @@ const request = require('supertest');
 const expect = require('chai').expect;
 
 const app = require('../main');
-const productsUtils = require('../src/utils/testUtils').products;
+// const productsUtils = require('../src/utils/testUtils').products;
 const usersUtils = require('../src/utils/testUtils').users;
 const { placeholders } = usersUtils;
 
@@ -73,28 +73,6 @@ describe("#products", function(){
     it('Deberia devolver el status code "200"', function(done) {
       request(app)
         .get('/products')
-        .set('Authorization', `Bearer ${placeholders.admin.token}`)
-        .end((err, res) => {
-          testResponse = res;
-          expect(res.statusCode).to.equal(200);
-          done();
-        });
-    });
-  });
-
-  describe('Get a product "/products/:id"', function() {
-    it('Deberia devolver el status code "401" si no se encuentra el token', function(done) {
-      request(app)
-      .get('/products/1')
-      .end((err, res) => {
-        testResponse = res;
-        expect(res.statusCode).to.equal(401);
-        done();
-      });
-    });
-    it('Deberia devolver el status code "200"', function(done) {
-      request(app)
-        .get('/products/1')
         .set('Authorization', `Bearer ${placeholders.admin.token}`)
         .end((err, res) => {
           testResponse = res;
