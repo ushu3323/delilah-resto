@@ -1,8 +1,8 @@
 const request = require('supertest');
 const expect = require('chai').expect;
 
-const app = require('../main');
 // const productsUtils = require('../src/utils/testUtils').products;
+const app = require('../main');
 const usersUtils = require('../src/utils/testUtils').users;
 const { placeholders } = usersUtils;
 
@@ -14,7 +14,7 @@ describe("#products", function(){
       .then(() => done());
   });
   describe('Add a product "/products"', function() {
-    it('Deberia devolver el status code "403" si el usuario no es administrador', function(done) {
+    it('Should return code "403" if the user is not an admin', function(done) {
       const product = {
         name: 'producto',
         price: 100,
@@ -28,7 +28,7 @@ describe("#products", function(){
           done();
         });
     })
-    it('Deberia devolver el status code "422" si los campos son invalidos', function(done) {
+    it('Should return code "422" if the fields are invalid', function(done) {
       const payload = {
         title: 'producto',
         price: '100',
@@ -43,7 +43,7 @@ describe("#products", function(){
           done();
         });
     });
-    it('Deberia devolver el status code "201" si los campos son validos', function(done) {
+    it('Should return code "201" if fields are invalid', function(done) {
       const payload = {
         name: 'Producto',
         price: 100,
@@ -61,7 +61,7 @@ describe("#products", function(){
   });
 
   describe('Get all products "/products"', function() {
-    it('Deberia devolver el status code "401" si no se encuentra el token', function(done) {
+    it('Should return code "401" if a token has not been provided', function(done) {
       request(app)
       .get('/products')
       .end((err, res) => {
@@ -70,7 +70,7 @@ describe("#products", function(){
         done();
       });
     });
-    it('Deberia devolver el status code "200"', function(done) {
+    it('Should return code "200" if the request was ok', function(done) {
       request(app)
         .get('/products')
         .set('Authorization', `Bearer ${placeholders.admin.token}`)

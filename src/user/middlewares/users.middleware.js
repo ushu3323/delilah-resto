@@ -158,4 +158,5 @@ module.exports = {
     idHeaderValidation,
     isAdminMiddle,
     isAdmin,
+    authAdmin: [authenticate, isAdmin]
 };

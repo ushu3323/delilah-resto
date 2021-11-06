@@ -12,11 +12,21 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 app.use(express.json(), cors(), helmet());
 // app.use(morgan('tiny'));
 
+
 // Routes
 app.use("/users", require("./src/user/routes/users.routes"));
 app.use("/orders", require('./src/order/routes/orders.routes'))
 app.use("/products", require("./src/product/routes/products.routes"));
+app.use("/paymentmethods", require("./src/paymentMethod/routes/paymentMethod.routes"));
+
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+// Error handler
+app.use((error, req, res, next) => {
+    console.error(error);
+    res.status(500).json({ msg: "Ha ocurrido un error interno", error: true });
+})
+
 
 // Homepage
 app.get("/", (req,res) =>{
@@ -26,11 +36,6 @@ app.get("/", (req,res) =>{
     );
 });
 
-// Error handler
-app.use((error, req, res, next) => {
-    console.error(error);
-    res.status(500).json({ msg: "Ha ocurrido un error interno", error: true });
-});
 
 app.listen(config.server.port, () => {
     console.log(`Listening at port: ${config.server.port}`);
