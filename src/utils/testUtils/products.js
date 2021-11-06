@@ -15,14 +15,14 @@ const placeholders = [
   },
 ];
 
-async function initProducts() {
-  for await (let product of placeholders){
+async function initPlaceholders() {
+  for (let product of placeholders){
     const {id} = await productRepository.create(product);
     product.id = id;
   }
 }
 
-async function deleteProducts() {
+async function deletePlaceholders() {
   for await (let product of placeholders) {
     await productRepository.del.byId(product.id)
   }
@@ -36,6 +36,6 @@ async function getLastProductId() {
 module.exports = {
   placeholders,
   getLastProductId,
-  initProducts,
-  deleteProducts
+  initPlaceholders,
+  deletePlaceholders
 };

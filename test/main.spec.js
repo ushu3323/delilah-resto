@@ -4,7 +4,7 @@ let app = require("../main");
 
 describe('#main', function () {
   describe('Home "/"', function () {
-    it('Status code "200"', function (done) {
+    it('Should return code "200"', function (done) {
       request(app)
         .get('/')
         .end(function(err, res) {
@@ -15,7 +15,7 @@ describe('#main', function () {
   });
 
   /* describe('Swagger Docs "/docs"', function () {
-    it('Status Code "200"', function (done) {
+    it('Status Should return code "200"', function (done) {
       request(app)
         .get('/docs')
         .end(function (err, res) {

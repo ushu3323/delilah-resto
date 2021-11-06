@@ -1,7 +1,12 @@
-async function initOrders() {
+async function initPlaceholders() {
 
 }
 
+async function deletePlaceholders() {
+  
+}
+
 module.exports = {
-  initOrders
+  initPlaceholders,
+  deletePlaceholders
 }

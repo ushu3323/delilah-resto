@@ -9,7 +9,7 @@ let testResponse;
 describe("#Payment Method", function () {
     const users = testUtils.users;
     before(function (done) {
-        users.initUsers()
+        users.initPlaceholders()
         .then(() => done());
     })
     
@@ -74,7 +74,7 @@ describe("#Payment Method", function () {
         testResponse = { statusCode: null, body: null };
     })
     after(function (done) {
-        users.deleteUsers()
+        users.deletePlaceholders()
         .then(() => done())
         .catch((err) => done(err))
     })
