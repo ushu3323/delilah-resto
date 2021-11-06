@@ -10,7 +10,7 @@ let testResponse;
 
 describe("#products", function(){
   before(function (done) {
-    usersUtils.initUsers()
+    usersUtils.initPlaceholders()
       .then(() => done());
   });
   describe('Add a product "/products"', function() {
@@ -91,7 +91,7 @@ describe("#products", function(){
   });
 
   after(function (done) {
-    usersUtils.deleteUsers()
+    usersUtils.deletePlaceholders()
       .then(() => done());
   })
 })

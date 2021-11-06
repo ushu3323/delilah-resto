@@ -8,37 +8,32 @@ const { placeholders } = testUtils.users
 let testResponse;
 let payload;
 
-async function initPlaceholders(done){
-  await testUtils.users.initUsers()
-  await testUtils.products.initProducts()
-  // await testUtils.orders.initOrders() 
-  payload = {
-      products: [
-        {
-          id: testUtils.products.placeholders[0].id,
-          amount: 2,
-        }
-      ],
-      paymentMethodId: 1
-  };
-  done()
-}
-
 async function deletePlaceholders(done) {
-  await testUtils.users.deleteUsers()
-  await testUtils.products.deleteProducts()
+  const { users, products } = testUtils
+  await testUtils.bulkDelete([users, products])
   done()
 }
 
 describe("#orders", function (){
-  
   before(function (done) {
-    initPlaceholders(done)
-      .catch((reason) => done(reason));
+    const { users, products } = testUtils;
+    testUtils.bulkInit([users, products])
+    .then(() => { 
+      payload = {
+        products: [
+          {
+            id: products.placeholders[0].id,
+            amount: 2,
+          }
+        ],
+        paymentMethodId: 1
+      };
+      done()
+    })
   });
 
   describe('Add an Order "/orders"', function() {
-    it('Deberia devolver el status code "401" si no se ingresa el token', function(done) {
+    it('Should return code "401" if a token has not been provided ', function(done) {
       request(app)
         .post('/orders')
         //.set({ "Authorization": `Bearer ${placeholders.admin.token}` })
@@ -50,7 +45,7 @@ describe("#orders", function (){
         })
     });
 
-    it('Deberia devolver el status code "422" si un producto no existe', function(done) {
+    it('Should return code "422" if a product is invalid', function(done) {
       (async () => {
         request(app)
         .post('/orders')
@@ -72,7 +67,7 @@ describe("#orders", function (){
       })();
     });
 
-    it('Deberia devolver el status code "201"', function (done) {
+    it('Should return code "201" if the order was created', function (done) {
       request(app)
         .post('/orders')
         .set({"Authorization": `Bearer ${placeholders.user.token}`})

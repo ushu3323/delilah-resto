@@ -38,15 +38,18 @@ const placeholders = {
   }
 }
 
-const deleteUsers = async () => {
+const initPlaceholders = async () => {
+  const users = [placeholders.admin, placeholders.user];
+  for await (let user of users) {
+    await userRepository.create(user);
+    user.token = getToken(user);
+  }
+}
+
+const deletePlaceholders = async () => {
   const users = [placeholders.admin, placeholders.user, placeholders.userRegister];
   for await (const user of users) {
-    try {
-      await userRepository.del.byEmail(user.email)
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
+    await userRepository.del.byEmail(user.email)
   }
 }
 
@@ -54,14 +57,6 @@ const getToken = (user) => {
   const { email, password } = user;
   const token = jwt.sign({ email, password }, config.server.key);
   return token;
-}
-
-const initUsers = async () => {
-  const users = [placeholders.admin, placeholders.user];
-  for await (let user of users) {
-    await userRepository.create(user);
-    user.token = getToken(user);
-  }
 }
 
 /* (async () => {
@@ -79,8 +74,8 @@ const initUsers = async () => {
 })(); */
 
 module.exports = {
-    deleteUsers,
+    deletePlaceholders,
     getToken,
     placeholders,
-    initUsers
+    initPlaceholders
 }
