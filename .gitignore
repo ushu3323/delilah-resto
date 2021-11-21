@@ -1,6 +1,6 @@
 node_modules
 .env
 .vscode
-*.sh
+*.private.sh
 res/
 testFile.js
