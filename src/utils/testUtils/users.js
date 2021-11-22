@@ -1,8 +1,7 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const config = require('../../config');
-const User = require('../../user/model/User');
-const userRepository = require('../../user/repositories/user.repository');
+const config = require("../../config");
+const userRepository = require("../../user/repositories/user.repository");
 // let subset = (obj, keys) => keys.reduce((a, b) => (a[b] = obj[b], a), {});
 
 const placeholders = {
@@ -35,8 +34,8 @@ const placeholders = {
     password: "fakesecretpass",
     isAdmin: false,
     enabled: true,
-  }
-}
+  },
+};
 
 const initPlaceholders = async () => {
   const users = [placeholders.admin, placeholders.user];
@@ -44,20 +43,24 @@ const initPlaceholders = async () => {
     await userRepository.create(user);
     user.token = getToken(user);
   }
-}
+};
 
 const deletePlaceholders = async () => {
-  const users = [placeholders.admin, placeholders.user, placeholders.userRegister];
+  const users = [
+    placeholders.admin,
+    placeholders.user,
+    placeholders.userRegister,
+  ];
   for await (const user of users) {
-    await userRepository.del.byEmail(user.email)
+    await userRepository.del.byEmail(user.email);
   }
-}
+};
 
 const getToken = (user) => {
   const { email, password } = user;
   const token = jwt.sign({ email, password }, config.server.key);
   return token;
-}
+};
 
 /* (async () => {
   const admin = User.findOrCreate({
@@ -74,8 +77,8 @@ const getToken = (user) => {
 })(); */
 
 module.exports = {
-    deletePlaceholders,
-    getToken,
-    placeholders,
-    initPlaceholders
-}
+  deletePlaceholders,
+  getToken,
+  placeholders,
+  initPlaceholders,
+};
