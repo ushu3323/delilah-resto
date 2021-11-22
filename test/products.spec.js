@@ -1,41 +1,40 @@
-const request = require('supertest');
-const expect = require('chai').expect;
+const request = require("supertest");
+const expect = require("chai").expect;
 
 // const productsUtils = require('../src/utils/testUtils').products;
-const app = require('../main');
-const usersUtils = require('../src/utils/testUtils').users;
+const app = require("../main");
+const usersUtils = require("../src/utils/testUtils").users;
 const { placeholders } = usersUtils;
 
 let testResponse;
 
-describe("#products", function(){
+describe("#products", function () {
   before(function (done) {
-    usersUtils.initPlaceholders()
-      .then(() => done());
+    usersUtils.initPlaceholders().then(() => done());
   });
-  describe('Add a product "/products"', function() {
-    it('Should return code "403" if the user is not an admin', function(done) {
+  describe('Add a product "/products"', function () {
+    it('Should return code "403" if the user is not an admin', function (done) {
       const product = {
-        name: 'producto',
+        name: "producto",
         price: 100,
       };
       request(app)
-        .post('/products')
+        .post("/products")
         .send(product)
-        .set('Authorization', `Bearer ${placeholders.user.token}`)
-        .end(function(err, res) {
+        .set("Authorization", `Bearer ${placeholders.user.token}`)
+        .end(function (err, res) {
           expect(res.status).to.equal(403);
           done();
         });
-    })
-    it('Should return code "422" if the fields are invalid', function(done) {
+    });
+    it('Should return code "422" if the fields are invalid', function (done) {
       const payload = {
-        title: 'producto',
-        price: '100',
-      }
+        title: "producto",
+        price: "100",
+      };
       request(app)
-        .post('/products')
-        .set('Authorization', `Bearer ${placeholders.admin.token}`)
+        .post("/products")
+        .set("Authorization", `Bearer ${placeholders.admin.token}`)
         .send(payload)
         .end((err, res) => {
           testResponse = res;
@@ -43,14 +42,14 @@ describe("#products", function(){
           done();
         });
     });
-    it('Should return code "201" if fields are invalid', function(done) {
+    it('Should return code "201" if fields are invalid', function (done) {
       const payload = {
-        name: 'Producto',
+        name: "Producto",
         price: 100,
-      }
+      };
       request(app)
-        .post('/products')
-        .set('Authorization', `Bearer ${placeholders.admin.token}`)
+        .post("/products")
+        .set("Authorization", `Bearer ${placeholders.admin.token}`)
         .send(payload)
         .end((err, res) => {
           testResponse = res;
@@ -60,20 +59,22 @@ describe("#products", function(){
     });
   });
 
-  describe('Get all products "/products"', function() {
-    it('Should return code "401" if a token has not been provided', function(done) {
+  describe('Get all products "/products"', function () {
+    it('Should return code "401" if a token has not been provided', function (done) {
       request(app)
-      .get('/products')
-      .end((err, res) => {
-        testResponse = res;
-        expect(res.statusCode).to.equal(401);
-        done();
-      });
+        .get("/products")
+        // .set('Authorization', `Bearer ${placeholders.admin.token}`)
+        .end((err, res) => {
+          testResponse = res;
+          expect(res.statusCode).to.equal(401);
+          done();
+        });
     });
-    it('Should return code "200" if the request was ok', function(done) {
+
+    it('Should return code "200" if the token has been provided', function (done) {
       request(app)
-        .get('/products')
-        .set('Authorization', `Bearer ${placeholders.admin.token}`)
+        .get("/products")
+        .set("Authorization", `Bearer ${placeholders.admin.token}`)
         .end((err, res) => {
           testResponse = res;
           expect(res.statusCode).to.equal(200);
@@ -92,6 +93,7 @@ describe("#products", function(){
 
   after(function (done) {
     usersUtils.deletePlaceholders()
-      .then(() => done());
-  })
-})
+    .then(() => done())
+    .catch(err => done(err));
+  });
+});
