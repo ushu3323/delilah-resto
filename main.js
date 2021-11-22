@@ -5,9 +5,9 @@ const morgan = require('morgan');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
 
-const app = express();
 const config = require('./src/config');
 const swaggerDocument = YAML.load('./swagger.yaml');
+const app = express();
 
 app.use(express.json(), cors(), helmet());
 // app.use(morgan('tiny'));
@@ -23,10 +23,9 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // Error handler
 app.use((error, req, res, next) => {
-    console.error(error);
+    console.log(error);
     res.status(500).json({ msg: "Ha ocurrido un error interno", error: true });
 })
-
 
 // Homepage
 app.get("/", (req,res) =>{
@@ -35,7 +34,9 @@ app.get("/", (req,res) =>{
         <p>Porfavor, dirigase a <a href="/docs">/docs</a> para mas informacion acerca de como usar esta API</p>'
     );
 });
-
+app.use((req,res,next) => {
+    res.status(404).json({ msg: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
+});
 
 app.listen(config.server.port, () => {
     console.log(`Listening at port: ${config.server.port}`);
