@@ -1,6 +1,12 @@
 const route = require('express').Router();
-const {getPaymentMethods, getPaymentMethod, addPaymentMethod, deletePaymentMethod} = require('../controllers/paymentMethod.controller');
-const { paymentExist } = require('../middlewares/paymentMethod.middleware');
+
+const {
+  getPaymentMethods,
+  addPaymentMethod,
+  deletePaymentMethod,
+  editPaymentMethod,
+} = require('../controllers/paymentMethod.controller');
+const { paymentExist, validateNewPaymentMethod, validateEditPaymentMethod } = require('../middlewares/paymentMethod.middleware');
 const { authenticate, authAdmin} = require('../../user/middlewares/users.middleware')
 
 
@@ -8,8 +14,10 @@ route.get('/', authenticate, getPaymentMethods);
 
 // route.get('/:id', authenticate, getPaymentMethod);
 
-route.post('/', authAdmin, addPaymentMethod);
+route.post('/', authAdmin, validateNewPaymentMethod, addPaymentMethod);
 
-route.delete('/:id', authAdmin, deletePaymentMethod);
+route.patch('/:id', authAdmin, paymentExist, validateEditPaymentMethod, editPaymentMethod)
+
+route.delete('/:id', authAdmin, paymentExist, deletePaymentMethod);
 
 module.exports = route;
