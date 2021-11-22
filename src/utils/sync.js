@@ -23,10 +23,10 @@ const sync_models = async () => {
     where: { id: 1, isAdmin: true },
     order: [["id", "ASC"]],
     defaults: {
-      username: config.admin.username,
+      username: "admin",
       password: config.admin.password,
       fullName: "superuser",
-      email: "testuser@example",
+      email: config.admin.email,
       isAdmin: true,
     },
   });
