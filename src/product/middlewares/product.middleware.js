@@ -8,7 +8,7 @@ function validateNewProduct(req,res,next) {
     if (typeof name === "string" && name.length && typeof price === "number") {
         next();
     } else {
-        res.status(422).json({error: "Los campos son invalidos"});
+        res.status(422).json({msg: "Los campos son invalidos", error: true});
     }
 }
 
@@ -16,7 +16,7 @@ function idValidation(req, res, next) {
     const productId = parseInt(req.params.productId);
     req.product = productRepository
     if (isNaN(productId)) {
-        res.status(422).json({error: "La id del producto es invalida"});
+        res.status(422).json({msg: "La id del producto es invalida", error: true});
         return;
     }
     if (!Products.get(productId)) {
@@ -32,7 +32,7 @@ function validateEditProduct(req,res,next) {
     if (typeof name === "string" && name.length && typeof price === "number") {
         next();
     } else {
-        res.status(422).json({error: "Los campos son invalidos"});
+        res.status(422).json({msg: "Los campos son invalidos", error: true});
     }
 }
 
@@ -40,7 +40,7 @@ function validateProductEnabled (req, res, next) {
     const { enabled } = req.body;
 
     if (!(typeof enabled === "boolean")) {
-        res.status(422).json({error: "Los campos son invalidos"});
+        res.status(422).json({msg: "Los campos son invalidos", error: true});
         return;
     }
     next();
