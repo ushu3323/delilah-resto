@@ -38,7 +38,18 @@ describe("#users", function () {
           testResponse = { statusCode: res.statusCode, body: res.body };
           expect(res.statusCode).to.be.equal(201);
           done();
-                })
+        });
+    });
+
+    it('Should return code "422" if the user\'s email is already registered', function (done) {
+      request(app)
+        .post("/users")
+        .send(placeholders.userRegister)
+        .end(function (err, res) {
+          testResponse = { statusCode: res.statusCode, body: res.body };
+          expect(res.statusCode).equal(422);
+          done();
+        });
     });
   });
 
