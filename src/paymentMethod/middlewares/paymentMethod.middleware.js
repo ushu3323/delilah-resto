@@ -1,18 +1,23 @@
 const paymentMethodRepository = require('../repository/paymentMethod.repository');
 
 async function paymentExist(req, res, next) {
-  const { paymentMethodId:id } = req.params;
-  id = parseInt(id, 10);
-
+  const { id: _id } = req.params;
+  const id = parseInt(_id);
+  
   if (isNaN(id)) return res.status(422).json({msg:"Id invalida", error: true});
 
-  const paymentMethod = await paymentMethodRepository.get.byId(id);
+  try {
+    const paymentMethod = await paymentMethodRepository.get.byId(id);
+    if (!paymentMethod)
+    return res.status(404).json({msg:"Metodo de pago no encontrado", error: true});
 
-  if (!paymentMethod)
-  return res.status(404).json({msg:"Metodo de pago no encontrado", error: true});
-  
-  req.payMethod = paymentMethod;
-  next();
+    req.params.id = id
+    req.payMethod = paymentMethod;
+
+    next();
+  } catch (error) {
+    next(err);
+  }
 }
 
 async function validateNewPaymentMethod(req, res, next) {
@@ -25,7 +30,30 @@ async function validateNewPaymentMethod(req, res, next) {
   next();
 }
 
+async function validateEditPaymentMethod(req, res, next) {
+  let {name, enabled} = req.body;
+
+  if (name && typeof name !== 'string' || enabled && typeof enabled !== 'boolean')
+  return res.status(422).json({msg:"Campos invalidos", error: true});
+
+  try {
+    // console.log("old:", req.payMethod.name, req.payMethod.enabled);
+    
+    name ??= req.payMethod.name;
+    enabled ??= req.payMethod.enabled;
+
+    req.payMethod.set({name, enabled});
+    // console.log("new:", req.payMethod.name, req.payMethod.enabled);
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 module.exports = {
-  paymentExist
+  validateNewPaymentMethod,
+  validateEditPaymentMethod,
+  paymentExist,
 }
