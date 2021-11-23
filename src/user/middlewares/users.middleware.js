@@ -1,3 +1,4 @@
+const { sha256 } = require("js-sha256");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
 const userRepository = require("../repositories/user.repository");
@@ -81,7 +82,7 @@ async function validateLogin(req, res, next) {
   const { email, password } = req.body;
   user = await userRepository.get.byEmail(email);
 
-  if (user?.password === password) {
+  if (user?.password && sha256(password) === user.password) {
     req.user = user;
     return next();
   }

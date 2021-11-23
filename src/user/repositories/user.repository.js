@@ -1,11 +1,13 @@
 const User = require("../model/User");
+const { sha256 } = require("js-sha256");
 
 async function where(where) {
   return await User.findOne({where});
 }
 
 async function create(user) {
-  const newUser = await User.create({...user});
+  const newUser = await User.create({...user, password: sha256(user.password)});
+  return newUser;
 }
 
 module.exports = {

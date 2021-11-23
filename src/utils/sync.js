@@ -19,17 +19,21 @@ const sync_models = async () => {
   }
 
   // Register admin user
-  await User.findOrCreate({
+  const [admin, isAdminCreated] = await User.findOrCreate({
     where: { id: 1, isAdmin: true },
     order: [["id", "ASC"]],
     defaults: {
       username: "admin",
-      password: config.admin.password,
+      password: sha256(config.admin.password),
       fullName: "superuser",
       email: config.admin.email,
       isAdmin: true,
     },
   });
+  
+  if (isAdminCreated)
+  console.log(`Admin user created: ${admin.email}`);
+  
   process.exit();
 
   /* const [testUser, user_created] = await User.findOrCreate({
