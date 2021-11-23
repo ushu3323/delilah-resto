@@ -8,32 +8,54 @@ const config = require("../config");
 const sequelize = require("../connection/sequelize");
 const { sha256 } = require("js-sha256");
 
+const actions = {
+  sync: false,
+  forceSync: false,
+  registerAdmin: false,
+  forceRegister: false,
+};
+
 const sync_models = async () => {
   try {
     await sequelize.authenticate();
-    console.log("Authenticated successfully");
-    await sequelize.sync({ force: true, alter: false });
-    console.log(`Syncronized "${sequelize.config.database}" database!`);
+    console.log("Authenticated successfully to the database");
+    if (actions.sync) {
+      try {
+        await sequelize.sync({ force: actions.forceSync, alter: false });
+        console.log(`Syncronized "${sequelize.config.database}" database!`);
+      } catch(err) {
+        console.log(err.cause);
+        console.log(`Error: while syncronizing "${sequelize.config.database}" database,\nprobably there is already data in the database... try -fs option to force syncronization (WARNING: this option deletes all data in db)`);
+      }
+    }
+
+    if (actions.registerAdmin) {
+      let [admin, isAdminCreated] = await User.findOrCreate({
+        where: { username: "admin", isAdmin: true },
+        defaults: {
+          username: "admin",
+          password: sha256(config.admin.password),
+          fullName: "superuser",
+          email: config.admin.email,
+          isAdmin: true,
+        },
+      });
+
+      if (isAdminCreated){
+        console.log(`Admin user created: ${admin.email}`);
+      } else {
+        if (actions.forceRegister) {
+          console.log(`Force created admin user`);
+          console.log(`Admin user created: ${admin.email}`);
+        } else {
+          console.log(`Admin user already exists: ${admin.email}, run fsync or add -fr option to force creation`);
+        }
+      }
+    }
   } catch (error) {
     console.error(error.cause);
   }
 
-  // Register admin user
-  const [admin, isAdminCreated] = await User.findOrCreate({
-    where: { id: 1, isAdmin: true },
-    order: [["id", "ASC"]],
-    defaults: {
-      username: "admin",
-      password: sha256(config.admin.password),
-      fullName: "superuser",
-      email: config.admin.email,
-      isAdmin: true,
-    },
-  });
-  
-  if (isAdminCreated)
-  console.log(`Admin user created: ${admin.email}`);
-  
   process.exit();
 
   /* const [testUser, user_created] = await User.findOrCreate({
@@ -83,9 +105,44 @@ const sync_models = async () => {
   */
 };
 
-param = process.argv[2];
-if (param == "-s") {
-  sync_models();
-} else {
-  console.log(`Unknown parameter: ${param}`);
+params = process.argv.slice(2);
+
+for (param of params) {  
+  if (param == "-s") {
+    actions.sync = true;
+  } else if (param == "-fs") {
+    actions.sync = true;
+    actions.forceSync = true;
+  } else if (param == "-r") {
+    actions.registerAdmin = true;
+  } else if (param == "-fr") {
+    actions.registerAdmin = true;
+    actions.forceRegister = true;
+  } else {
+    console.log(`Unknown parameter: ${param}`);
+    process.exit();
+  }
 }
+
+const anyOption = actions.sync || actions.registerAdmin || actions.forceSync || actions.forceRegister;
+if (!anyOption) {
+  console.log("No valid options provided");
+  console.log(`
+  Usage: npm sync -- [options]
+  Options:
+    -s    Syncronize database
+    -fs   Force syncronize database
+    -r    Register admin user
+    -fr   Force register admin user
+  `);
+  process.exit();
+} else {
+  console.log(actions);
+  if (actions.forceSync) {
+    console.log("WARNING: deleting dabatase data in 3 seconds!");
+    setTimeout(() => sync_models(), 3000);
+  } else {
+    sync_models();
+  }
+}
+
