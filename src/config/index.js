@@ -19,7 +19,7 @@ module.exports = {
     key: process.env.KEY || "YouShouldntReadThis:O",
   },
   admin: {
-    username: process.env.ADMIN_USERNAME || "admin",
+    email: process.env.ADMIN_EMAIL || "admin@test.com",
     password: process.env.ADMIN_PASSWORD || "admin",
   },
 };

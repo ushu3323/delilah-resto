@@ -1,17 +1,20 @@
-const paymentMethodRepository = require('../repository/paymentMethod.repository');
+const paymentMethodRepository = require("../repository/paymentMethod.repository");
 
 async function paymentExist(req, res, next) {
   const { id: _id } = req.params;
   const id = parseInt(_id);
-  
-  if (isNaN(id)) return res.status(422).json({msg:"Id invalida", error: true});
+
+  if (isNaN(id))
+    return res.status(422).json({ msg: "Id invalida", error: true });
 
   try {
     const paymentMethod = await paymentMethodRepository.get.byId(id);
     if (!paymentMethod)
-    return res.status(404).json({msg:"Metodo de pago no encontrado", error: true});
+      return res
+        .status(404)
+        .json({ msg: "Metodo de pago no encontrado", error: true });
 
-    req.params.id = id
+    req.params.id = id;
     req.payMethod = paymentMethod;
 
     next();
@@ -21,28 +24,31 @@ async function paymentExist(req, res, next) {
 }
 
 async function validateNewPaymentMethod(req, res, next) {
-  const {name, enabled} = req.body;
+  const { name, enabled } = req.body;
 
-  if (typeof name !== 'string' || typeof enabled !== 'boolean')
-    return res.status(422).json({msg:"Campos invalidos", error: true});
-  
-  req.payMethod = {name, enabled};
+  if (typeof name !== "string" || typeof enabled !== "boolean")
+    return res.status(422).json({ msg: "Campos invalidos", error: true });
+
+  req.payMethod = { name, enabled };
   next();
 }
 
 async function validateEditPaymentMethod(req, res, next) {
-  let {name, enabled} = req.body;
+  let { name, enabled } = req.body;
 
-  if (name && typeof name !== 'string' || enabled && typeof enabled !== 'boolean')
-  return res.status(422).json({msg:"Campos invalidos", error: true});
+  if (
+    (name && typeof name !== "string") ||
+    (enabled && typeof enabled !== "boolean")
+  )
+    return res.status(422).json({ msg: "Campos invalidos", error: true });
 
   try {
     // console.log("old:", req.payMethod.name, req.payMethod.enabled);
-    
+
     name ??= req.payMethod.name;
     enabled ??= req.payMethod.enabled;
 
-    req.payMethod.set({name, enabled});
+    req.payMethod.set({ name, enabled });
     // console.log("new:", req.payMethod.name, req.payMethod.enabled);
 
     next();
@@ -51,9 +57,8 @@ async function validateEditPaymentMethod(req, res, next) {
   }
 }
 
-
 module.exports = {
   validateNewPaymentMethod,
   validateEditPaymentMethod,
   paymentExist,
-}
+};
