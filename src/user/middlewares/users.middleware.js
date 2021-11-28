@@ -75,6 +75,27 @@ function isLoginFieldsValid(loginBody) {
   );
 }
 
+async function validateEnabled(req, res, next) {
+  console.log("validateEnabled middleware");
+  const { enabled } = req.body;
+  const { userID: _userID } = req.params;
+  const userID = parseInt(_userID);
+  let user;
+
+  if(isNaN(userID)) return res.status(422).json({msg: "la id es invalida", error: true});
+  if (typeof enabled !== "boolean") return res.status(422).json({msg: "los campos son invalidos"});
+
+  try {
+    user = await userRepository.get.byId(userID);
+    if(!user) return res.status(404).json({msg: `Usuario no encontrado`, error: true });
+  } catch (error) {
+    return next(error);
+  }
+
+  req.user = user;
+  next();
+}
+
 async function validateLogin(req, res, next) {
   if (!isLoginFieldsValid(req.body))
     return res.status(422).json({ msg: "Los campos son invalidos", error: true });
@@ -82,12 +103,14 @@ async function validateLogin(req, res, next) {
   const { email, password } = req.body;
   user = await userRepository.get.byEmail(email);
 
-  if (user?.password && sha256(password) === user.password) {
-    req.user = user;
-    return next();
+  if (!user?.password || sha256(password) !== user.password) {
+    return res.status(422).json({ msg: "Credenciales invalidas", error: true });
   }
-
-  res.status(422).json({ msg: "Credenciales invalidas", error: true });
+  
+  if (!user.enabled) return res.status(403).json({ msg: "El usuario esta deshabilitado", error: true })
+  
+  req.user = user;
+  return next();
 }
 
 /**
@@ -119,21 +142,25 @@ function jwtDecode(token) {
 
 async function authenticate(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
+  let user;
   if (!token) return res.status(401).json({ msg: "No se encontro un token", error: true });
+  
+  const jwtDecoded = jwtDecode(token);
+  if(!jwtDecoded) return res.status(401).json({ msg: "Token invalido", error: true });
 
-    const jwtDecoded = jwtDecode(token);
-    try {
-      if(jwtDecoded){
-        req.jwtUser = jwtDecoded;
-        req.user = await userRepository.get.byEmail(jwtDecoded.email);
-        next();
-      } else {
-        return res.status(403).json({ msg: "token invalido", error: true });
-      }
-    } catch (error) {
-      console.log("JWT Error:", error.message);
-      next(error);
-    }
+  try {
+    user = await userRepository.get.byEmail(jwtDecoded.email);
+    if (!user) return res.status(401).json({ msg: "Usuario no encontrado", error: true });
+  } catch (error) {
+    console.log("JWT Error:", error.message);
+    return next(error);
+  }
+
+  if(!user.enabled) return res.status(403).json({msg: "El usuario esta deshabilitado", error: true})
+
+  req.jwtUser = jwtDecoded;
+  req.user = user
+  next();
 }
 
 async function isAdmin(req, res, next) {
@@ -141,7 +168,7 @@ async function isAdmin(req, res, next) {
     next();
   } else {
     res.status(403).json({
-      msg: "No tiene permisos suficientes",
+      msg: "No esta autorizado",
       error: true,
     });
   }
@@ -152,15 +179,14 @@ async function isAdmin(req, res, next) {
  */
 function isAdminMiddle(adminMiddleware, userMiddleware) {
   return async (req, res, next) => {
-    const user = await userRepository.get.byEmail(req.jwtuser.email);
-
-    if (user.isAdmin) adminMiddleware(req, res, next);
+    if (req.user.isAdmin) adminMiddleware(req, res, next);
     else userMiddleware(req, res, next);
   };
 }
 
 module.exports = {
   validateRegister,
+  validateEnabled,
   validateLogin,
   authenticate,
   idHeaderValidation,

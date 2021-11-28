@@ -9,18 +9,38 @@ function login(req, res) {
     res.status(200).json({ token });
 };
 
-async function registerUser(req, res) {
+async function registerUser(req, res, next) {
+  try {
     await userRepository.create(req.userRegister);
     res.status(201).json({ message: 'Usuario creado', error: false });
+  } catch (error) {
+    next(error);
+  }
 };
 
-async function allUsers(req, res) {
+async function allUsers(req, res, next) {
+  try {
     const users = await userRepository.get.all();
     res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
 };
+
+async function enableUser(req, res, next) {
+  const { enabled } = req.body;
+  try {
+    req.user.enabled = enabled;
+    await req.user.save();
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
     registerUser,
+    enableUser,
     allUsers,
-    login
+    login,
 }

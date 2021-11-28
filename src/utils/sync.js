@@ -23,9 +23,11 @@ const sync_models = async () => {
       try {
         await sequelize.sync({ force: actions.forceSync, alter: false });
         console.log(`Syncronized "${sequelize.config.database}" database!`);
-      } catch(err) {
+      } catch (err) {
         console.log(err.cause);
-        console.log(`Error: while syncronizing "${sequelize.config.database}" database,\nprobably there is already data in the database... try -fs option to force syncronization (WARNING: this option deletes all data in db)`);
+        console.log(
+          `Error: while syncronizing "${sequelize.config.database}" database,\nprobably there is already data in the database... try -fs option to force syncronization (WARNING: this option deletes all data in db)`
+        );
       }
     }
 
@@ -38,17 +40,20 @@ const sync_models = async () => {
           fullName: "superuser",
           email: config.admin.email,
           isAdmin: true,
+          enabled: true,
         },
       });
 
-      if (isAdminCreated){
+      if (isAdminCreated) {
         console.log(`Admin user created: ${admin.email}`);
       } else {
         if (actions.forceRegister) {
           console.log(`Force created admin user`);
           console.log(`Admin user created: ${admin.email}`);
         } else {
-          console.log(`Admin user already exists: ${admin.email}, run fsync or add -fr option to force creation`);
+          console.log(
+            `Admin user already exists: ${admin.email}, add -fr option to force creation`
+          );
         }
       }
     }
@@ -56,53 +61,7 @@ const sync_models = async () => {
     console.error(error.cause);
   }
 
-  process.exit();
-
-  /* const [testUser, user_created] = await User.findOrCreate({
-    where: { email: 'testuser@example.com' },
-    defaults:{
-      username: 'user',
-      fullName: 'test user',
-      password: 'userpass',
-      email: 'testuser@example.com',
-      isAdmin: false,
-      phoneNumber: '+380991234567',
-      address: 'Street 1, Building 1, Room 1',
-    }
-  });
-  const [testProduct, prod_created] = await Product.findOrCreate({
-    where: { name: 'Product 1' },
-    limit: 1,
-    defaults: {
-      name: 'Product 1',
-      price: 100,
-      category: 'category 1',
-      enabled: true,
-    }
-  });
-
-  // Get the first order of 'testUser'
-  let testOrder = (await testUser.getOrders({
-    where: { status: 'new' },
-    limit: 1,
-    include: {
-      model: Product,
-    }
-  }))[0];
-
-  if (!testOrder) {
-    testOrder = await Order.create({
-      status: 'new',
-      userId: testUser.id,
-    });
-    console.log('Order created!');
-  }
-
-  let finalUser = await User.findOne({
-    where: { email: 'testuser@example' },
-  });
-  console.log('user', finalUser);
-  */
+  process.exit(); 
 };
 
 params = process.argv.slice(2);

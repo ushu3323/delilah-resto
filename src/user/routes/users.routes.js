@@ -10,7 +10,10 @@ route.get('/', usersM.authenticate, usersM.isAdmin, usersC.allUsers);
 // Register a new user
 route.post('/', usersM.validateRegister, usersC.registerUser);
 
-// Send the unique id of the user that is being logged
+// Sends a jwt token to authenticate in another routes
 route.post('/login', usersM.validateLogin, usersC.login);
+
+// Enables/disables an user
+route.patch('/:userID', usersM.authAdmin, usersM.validateEnabled, usersC.enableUser);
 
 module.exports = route;
