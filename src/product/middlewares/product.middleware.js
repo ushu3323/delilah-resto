@@ -2,43 +2,48 @@ const { Products } = require("../../models/Data");
 const productRepository = require('../repositories/product.repository');
 
 
-function validateNewProduct(req,res,next) {
-    const { name, price } = req.body;
+function validateBody(req, res, next) {
+    const { name, price, category, enabled } = req.body;
+    if (
+      typeof name === "string" && name.length &&
+      typeof category === "string" && category.length &&
+      typeof price === "number" && typeof enabled === "boolean") {
 
-    if (typeof name === "string" && name.length && typeof price === "number") {
-        next();
+      req.newProduct = { name, price, category, enabled };
+      next();
     } else {
-        res.status(422).json({msg: "Los campos son invalidos", error: true});
+      res.status(422).json({ msg: "Los campos son invalidos", error: true });
     }
 }
 
 function idValidation(req, res, next) {
     const productId = parseInt(req.params.productId);
-    req.product = productRepository
     if (isNaN(productId)) {
-        res.status(422).json({msg: "La id del producto es invalida", error: true});
-        return;
+      return res
+        .status(422)
+        .json({ msg: "La id del producto es invalida", error: true });
     }
-    if (!Products.get(productId)) {
-        res.status(404).json({error: `No se ha encontrado un producto con id ${productId}`});
-        return;
-    }
+    req.productId = productId;
     next();
 }
 
-function validateEditProduct(req,res,next) {
-    const { name, price } = req.body;
-
-    if (typeof name === "string" && name.length && typeof price === "number") {
-        next();
-    } else {
-        res.status(422).json({msg: "Los campos son invalidos", error: true});
+async function productExists(req, res, next) {
+  try {
+    req.product = await productRepository.get.byId(req.productId);
+    if (!req.product) {
+      return res.status(404).json({
+        error: `No se ha encontrado un producto con id ${req.productId}`,
+      });
     }
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
+
 
 function validateProductEnabled (req, res, next) {
     const { enabled } = req.body;
-
     if (!(typeof enabled === "boolean")) {
         res.status(422).json({msg: "Los campos son invalidos", error: true});
         return;
@@ -48,7 +53,7 @@ function validateProductEnabled (req, res, next) {
 
 module.exports = {
     idValidation,
-    validateNewProduct,
-    validateEditProduct,
-    validateProductEnabled
+    validateBody,
+    validateProductEnabled,
+    idProductExists: [idValidation, productExists],
 }

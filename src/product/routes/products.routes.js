@@ -10,25 +10,25 @@ route.get('/', userM.authenticate, productC.getProducts);
 // Add a new product
 route.post(
     '/',
-    userM.authenticate, userM.isAdmin, productM.validateNewProduct,
+    userM.authAdmin, productM.validateBody,
     productC.addNewProduct
 );
 
 route.put(
     '/:productId',
-    userM.authenticate, userM.isAdmin, productM.idValidation, productM.validateEditProduct,
+    userM.authAdmin, productM.idProductExists, productM.validateBody,
     productC.editProduct
 );
 
 route.patch(
     '/:productId',
-    userM.authenticate, userM.isAdmin, productM.idValidation, productM.validateProductEnabled,
+    userM.authAdmin, productM.idProductExists, productM.validateProductEnabled,
     productC.setProductEnabled
 );
 
 route.delete(
     '/:productId',
-    userM.authenticate, userM.isAdmin, productM.idValidation,
+    userM.authAdmin, productM.idProductExists,
     productC.deleteProduct
 );
 
