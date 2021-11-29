@@ -34,7 +34,7 @@ async function validateOrderBody(req, res, next) {
     return;
   }
   const payMethod = await paymentMethodRepository.get.byId(paymentMethodId);
-  if (!payMethod) {
+  if (!payMethod || !payMethod.enabled) {
     return res.status(422).json({ msg: "El metodo de pago no existe", error: true });
   }
 
