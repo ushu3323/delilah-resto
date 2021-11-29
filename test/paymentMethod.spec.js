@@ -18,7 +18,7 @@ describe("#Payment Method", function () {
   });
 
   describe('Create a new payment method "/paymentmethods"', function (done) {
-    const payload = paymentMethods.placeholders.creditCard;
+    const payload = paymentMethods.placeholders.testMethod;
     it('Should return code "401" if a token has not been provided', function (done) {
       request(app)
         .post("/paymentmethods")
@@ -32,6 +32,7 @@ describe("#Payment Method", function () {
     });
 
     it('Should return code "201" if it was created', function (done) {
+
       request(app)
         .post("/paymentmethods")
         .send(payload)

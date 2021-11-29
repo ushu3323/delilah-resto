@@ -8,32 +8,27 @@ const { placeholders } = testUtils.users
 let testResponse;
 let payload;
 
-async function deletePlaceholders(done) {
-  const { users, products } = testUtils
-  await testUtils.bulkDelete([users, products])
-  done()
-}
 
-describe("#orders", function (){
+describe("#orders", function () {
   before(function (done) {
-    const { users, products } = testUtils;
-    testUtils.bulkInit([users, products])
-    .then(() => { 
-      payload = {
-        products: [
-          {
-            id: products.placeholders[0].id,
-            amount: 2,
-          }
-        ],
-        paymentMethodId: 1
-      };
-      done()
-    })
+    const { users, products, paymentMethods } = testUtils;
+    testUtils.bulkInit([users, products, paymentMethods])
+      .then(() => {
+        payload = {
+          products: [
+            {
+              id: products.placeholders[0].id,
+              amount: 2,
+            }
+          ],
+          paymentMethodId: paymentMethods.placeholders.cash.id
+        };
+        done()
+      })
   });
 
-  describe('Add an Order "/orders"', function() {
-    it('Should return code "401" if a token has not been provided ', function(done) {
+  describe('Add an Order "/orders"', function () {
+    it('Should return code "401" if a token has not been provided ', function (done) {
       request(app)
         .post('/orders')
         //.set({ "Authorization": `Bearer ${placeholders.admin.token}` })
@@ -45,41 +40,41 @@ describe("#orders", function (){
         })
     });
 
-    it('Should return code "422" if a product is invalid', function(done) {
+    it('Should return code "422" if a product is invalid', function (done) {
       (async () => {
         request(app)
-        .post('/orders')
-        .set({ "Authorization": `Bearer ${placeholders.admin.token}` })
-        .send({
-          products: [
-            {
-              id: (await testUtils.products.getLastProductId()) + 1,
-              amount: 2,
-            }
-          ],
-          paymentMethodId: 1
-        })
-        .end((err, res) => {
-          testResponse = res;
-          expect(res.statusCode).to.equal(422);
-          done();
-        });
+          .post('/orders')
+          .set({ "Authorization": `Bearer ${placeholders.admin.token}` })
+          .send({
+            products: [
+              {
+                id: (await testUtils.products.getLastProductId()) + 1,
+                amount: 2,
+              }
+            ],
+            paymentMethodId: 1
+          })
+          .end((err, res) => {
+            testResponse = res;
+            expect(res.statusCode).to.equal(422);
+            done();
+          });
       })();
     });
 
     it('Should return code "201" if the order was created', function (done) {
       request(app)
         .post('/orders')
-        .set({"Authorization": `Bearer ${placeholders.user.token}`})
+        .set({ "Authorization": `Bearer ${placeholders.user.token}` })
         .send(payload)
         .end((err, res) => {
-          testResponse = {statusCode: res.statusCode, body: res.body}
+          testResponse = { statusCode: res.statusCode, body: res.body }
           expect(res.status).to.equal(201)
           done()
         })
     });
 
-    afterEach(function (){
+    afterEach(function () {
       if (this.currentTest.state === 'failed') {
         console.log('\tres.statusCode:', testResponse?.statusCode);
         console.log('\tres.body:', testResponse?.body);
@@ -87,8 +82,10 @@ describe("#orders", function (){
     });
   });
 
-  after(function(done) {
-    deletePlaceholders(done)
+  after(function (done) {
+    const { users, products, paymentMethods } = testUtils;
+    testUtils.bulkDelete([users, products, paymentMethods])
+      .then(() => done())
       .catch((reason) => done(reason));
   });
 });

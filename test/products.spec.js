@@ -42,10 +42,12 @@ describe("#products", function () {
           done();
         });
     });
-    it('Should return code "201" if fields are invalid', function (done) {
+    it('Should return code "201" if fields are valid', function (done) {
       const payload = {
         name: "Producto",
+        category: "Category 1",
         price: 100,
+        enabled: true,
       };
       request(app)
         .post("/products")
