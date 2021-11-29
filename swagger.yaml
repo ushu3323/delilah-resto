@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Delilah Restó
-  version: 1.0.0
+  version: 2.0.0
   description: Servicio de gestion de pedidos de un restaurante
 servers:
   - url: http://localhost:5000
@@ -14,12 +14,8 @@ paths:
         - Usuario
       summary: Todos los usuarios
       description: Devuelve una lista con todos los usuarios registrados y sus respectivos datos, Solo los administradores pueden verlo
-      parameters:
-        - in: header
-          name: userId
-          schema:
-            type: integer
-          required: true
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: OK
@@ -30,7 +26,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
     post:
       tags:
         - Usuario
@@ -48,10 +44,12 @@ paths:
         '422':
           description: Datos invalidos
   
-  /login:
+  /users/login:
     post:
       tags:
         - Usuario
+      summary: Iniciar sesion
+      description: Inicia sesión con un mail y contraseña, devuelve un token de autenticación
       requestBody:
         content:
           application/json:
@@ -65,23 +63,49 @@ paths:
               schema:
                 type: object
                 properties:
-                  userID:
-                    type: integer
+                  token:
+                    type: string
         '404':
           description: El usuario no existe
-  
+
+  /users/{userID}:
+    patch:
+      tags:
+        - Usuario
+      summary: Habilitar/Deshabilitar un usuario
+      description: Habilitar un usuario, solo los administradores pueden hacerlo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+
+
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: No esta autorizado
+
   /orders:
     get:
       tags:
         - Pedidos
       summary: Todos los pedidos
-      description: Devuelve una lista de los pedidos realizados por el usuario. Si el usuario es administrador, en cambio,  obtendra un listado de TODOS los pedidos realizados por los usuarios
-      parameters:
-        - in: header
-          name: userId
-          schema:
-            type: integer
-          required: true
+      description: Devuelve una lista de los pedidos realizados por el usuario. En cambio, si el usuario es administrador obtendra un listado de TODOS los pedidos realizados
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: OK
@@ -103,21 +127,16 @@ paths:
                               properties:
                                 amount:
                                   type: integer
-                  
-                  
+
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
     post:
       tags:
         - Pedidos
       summary: Realizar un pedido
       description: Realiza un pedido, indicando las ids de los productos a pedir y del metodo de pago
-      parameters:
-        - in: header
-          name: userId
-          schema:
-            type: integer
-          required: true
+      security:
+      - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -128,36 +147,11 @@ paths:
           description: Pedido creado correctamente
   
   /orders/{orderID}:
-    get:
-      tags:
-        - Pedidos
-      deprecated: true
-      summary: Pedido especifico
-      description: Devuelve el pedido especificado, solo los administradores pueden usar esta ruta
-      parameters:
-        - in: path
-          name: orderID
-          required: true
-          schema:
-            type: integer
-        - in: header
-          required: true
-          name: userID
-          schema:
-            type: integer
-            
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '404':
-          description: La orden con id {orderID} no existe
     put:
       tags:
         - Pedidos
+      security:
+        - bearerAuth: []
       summary: Modificar pedido
       description: Modifica un pedido en especifico
       parameters:
@@ -166,12 +160,12 @@ paths:
           required: true
           schema:
             type: integer
-        - in: header
-          required: true
-          name: userID
-          schema:
-            type: integer
-            
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/New Order'
+
       responses:
         '200':
           description: OK
@@ -184,16 +178,13 @@ paths:
     patch:
       tags:
         - Pedidos
+      security:
+        - bearerAuth: []
       summary: Modifica el estado del pedido
       parameters:
         - in: path
           name: orderID
           required: true
-          schema:
-            type: integer
-        - in: header
-          required: true
-          name: userID
           schema:
             type: integer
       requestBody:
@@ -202,8 +193,15 @@ paths:
             schema:
               type: object
               properties:
-                a:
-                  type: integer
+                status:
+                  type: string
+                  enum:
+                    - "nuevo"
+                    - "confirmado"
+                    - "preparando"
+                    - "enviando"
+                    - "entregado"
+                    - "cancelado"
       
       responses:
         '200':
@@ -215,6 +213,8 @@ paths:
     get:
       tags:
         - Productos
+      security:
+        - bearerAuth: []
       summary: Todos los Productos
       description: Muestra todos los productos
       responses:
@@ -229,6 +229,8 @@ paths:
     post:
       tags:
         - Productos
+      security:
+        - bearerAuth: []
       summary: Añadir producto
       description: Añade un nuevo producto
       requestBody:
@@ -240,15 +242,22 @@ paths:
         '201': 
           description: Created
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
 
   /products/{productID}:
     put:
       tags:
         - Productos
+      security:
+        - bearerAuth: []
       summary: Modificar producto 
       description: Modifica los datos de un producto existente 
-
+      parameters:
+        - in: path
+          name: productID
+          required: true
+          schema:
+            type: integer
       requestBody:
         content:
           application/json:
@@ -260,12 +269,20 @@ paths:
         '404':
           description: El producto no existe
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
     patch:
       tags:
         - Productos
-      summary: Alta/Baja producto
-      description: Da de alta/baja un producto, define la posibilidad de los usuarios de poder pedir ese productos
+      security:
+        - bearerAuth: []
+      summary: Habilitar/Deshabilitar producto
+      description: Habilita/Deshabilita un producto, esto afecta en la visibilidad del producto para los usuarios
+      parameters:
+        - in: path
+          name: productID
+          required: true
+          schema:
+            type: integer
       requestBody:
         content:
           application/json:
@@ -280,24 +297,34 @@ paths:
         '404':
           description: El producto no existe
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
     delete:
       tags:
         - Productos
+      security:
+        - bearerAuth: []
       summary: Eliminar producto
       description: Elimina un producto
+      parameters:
+        - in: path
+          name: productID
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
         '404':
           description: El producto no existe
         '403':
-          description: El usuario no es administrador
-                
-  /paymethods:
+          description: No esta autorizado
+
+  /paymentmethods:
     get:
       tags:
         - Metodos de pago
+      security:
+        - bearerAuth: []
       summary: Todos los metodos de pago
       description: Devuelve todos los metodos de pago existentes
       responses:
@@ -312,42 +339,83 @@ paths:
     post:
       tags:
         - Metodos de pago
+      security:
+        - bearerAuth: []
       summary: Añadir metodo de pago
       description: Añade un nuevo metodo de pago, solo Administradores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/New Payment method'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Payment method'
-    put:
+                $ref: '#/components/schemas/Payment method'
+        '403':
+          description: No esta autorizado
+  
+  /paymentmethods/{paymentMethodID}:
+    patch:
       tags:
         - Metodos de pago
+      security:
+        - bearerAuth: []
       summary: Modificar metodo de pago
       description: Modifica un metodo de pago existente
+      parameters:
+        - in: path
+          name: paymentMethodID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/New Payment method'
+
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Payment method'
+                $ref: '#/components/schemas/Payment method'
         '404':
           description: El metodo de pago no existe
         '403':
-          description: El usuario no es administrador
+          description: No esta autorizado
+    delete:
+      tags: 
+        - Metodos de pago
+      security:
+        - bearerAuth: []
+      summary: Eliminar metodo de pago
+      description: Elimina un metodo de pago
+      parameters:
+        - in: path
+          name: paymentMethodID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: El metodo de pago no existe
+        '403':
+          description: No esta autorizado
                 
-        
-# al loguearse, enviar en el body: username y password,
-# El servidor debera devolver un id que identifique la sesion de la misma (En este proyect, el id representa la id del usuario)
-# y luego pasarlo por el encabezado (header)
-
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     User:
       properties:
@@ -357,7 +425,7 @@ components:
         username:
           type: string
           example: stejobs20
-        fullname:
+        fullName:
           type: string
           example: Steve Jobs
         email:
@@ -369,9 +437,21 @@ components:
         address:
           type: string
           example: LA, USA 1231
-        password:
+        isAdmin:
+          type: boolean
+          example: true
+        enabled:
+          type: boolean
+          example: true
+        createdAt:
           type: string
-          example: "123456"
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        # password:
+        #   type: string
+        #   example: "123456"
         # pedidos:
         #   type: array
         #   items:
@@ -381,7 +461,7 @@ components:
         username:
           type: string
           example: stejobs20
-        fullname:
+        fullName:
           type: string
           example: Steve Jobs
         email:
@@ -398,9 +478,9 @@ components:
           example: "123456"
     Login:
       properties:
-        username:
+        email:
           type: string
-          example: stejobs20
+          example: test@example.com
         password:
           type: string
           example: "123456"
@@ -414,10 +494,10 @@ components:
         idUser:
           type: integer
           format: int32
-        time:
+        createdAt:
           type: string
-          pattern: '^([0-1][0-9]|2[0-3])(:)([0-5][0-9])$'
-          example: '23:59'
+          # pattern: '^([0-1][0-9]|2[0-3])(:)([0-5][0-9])$'
+          example: '2021-11-23T22:27:21.000Z'
           description: Hora en que se realizo el pedido
         state:
           type: string
@@ -457,10 +537,6 @@ components:
           # $ref: '#/components/schemas/Payment method'
     Product:
       type: object
-      required:
-        - id
-        - name
-        - price
       properties:
         id:
           type: integer
@@ -468,20 +544,34 @@ components:
         name:
           type: string
           example: "Hamburguesa clásica"
+        category:
+          type: string
+          example: "Comida rapida"
         price:
           type: number
           format: float
           example: 350.0
     New Product:
       type: object
+      required:
+        - name
+        - category
+        - price
+        - enabled
       properties:
         name:
-            type: string
-            example: "Hamburguesa clásica"
+          type: string
+          example: "Hamburguesa clásica"
+        category:
+          type: string
+          example: "Comida rapida"
         price:
           type: number
           format: float
           example: 350.0
+        enabled:
+          type: boolean
+          example: true
     Payment method:
       type: object
       properties:
@@ -490,10 +580,14 @@ components:
           format: int32
         name:
           type: string
-          enum:
-            - "Efectivo"
-            - "Contado"
+
+        enabled:
+          type: boolean
     New Payment method:
-      name:
-        type: string
-        example: "Contado"
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Contado"
+        enabled:
+          type: boolean
