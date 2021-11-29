@@ -40,6 +40,8 @@ User.init({
 }, {sequelize, modelName: "user"});
 
 User.Order = User.hasMany(Order);
+ // helps to show the user asociated to the order
+Order.belongsTo(User, {as: 'user', foreignKey: 'userId'});
 
 /* (async () => {
     await sequelize.sync({force: false});
