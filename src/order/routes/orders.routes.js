@@ -2,34 +2,32 @@ const route = require('express').Router();
 
 const usersM = require('../../user/middlewares/users.middleware');
 const ordersM = require('../middlewares/orders.middleware');
-const ordersC = require('../controllers/orders.controller');
+const { getOrders, addOrder, editOrder, editOrderStatus } = require('../controllers/orders.controller');
 
+route.use(usersM.authenticate);
 
-route.use('/', usersM.authenticate);
+route.get('/', getOrders);
 
-route.get('/', ordersC.getOrders); 
-
-route.post('/', ordersM.validateNewOrder, ordersC.addOrder);
+route.post('/', ordersM.validateOrderBody, addOrder);
 
 route.put('/:orderId',
-    ordersM.orderExists,
-    ordersM.validateNewOrder,
-    usersM.authenticate,
-    usersM.isAdminMiddle(
-        (req,res,next) => {next()},
-        ordersM.canEditOrder,
-    ), 
-    ordersC.editOrder
+  usersM.authenticate,
+  ordersM.orderExists,
+  ordersM.validateOrderBody,
+  usersM.isAdminMiddle(
+    (req, res, next) => { next() },
+    ordersM.isOrderOwner,
+  ),
+  editOrder
 );
 
 route.patch('/:orderId',
-    ordersM.orderExists,
-    usersM.idHeaderValidation, ordersM.orderExists, ordersM.validateOrderStatus,
-    usersM.isAdminMiddle(
-        (req,res,next) => {next()},
-        ordersM.canSetOrderStatus
-    ),
-    ordersC.editOrderStatus
+  ordersM.orderExists, ordersM.validateOrderStatus,
+  usersM.isAdminMiddle(
+    (req, res, next) => { next() },
+    ordersM.canSetOrderStatus
+  ),
+  editOrderStatus
 )
 
 module.exports = route;

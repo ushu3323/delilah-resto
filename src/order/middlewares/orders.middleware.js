@@ -1,35 +1,41 @@
 const { Products, Orders } = require("../../models/Data");
 const Order = require("../../models/Order");
-const orderStatuses = require("../../models/OrderStatuses");
+const orderStatuses = require("../../utils/OrderStatuses");
+const paymentMethodRepository = require("../../paymentMethod/repository/paymentMethod.repository");
 const productRepository = require("../../product/repositories/product.repository");
 const orderRepository = require("../repository/order.repository");
 
-function orderExists(req, res, next) {
+async function orderExists(req, res, next) {
   const orderId = parseInt(req.params.orderId);
   if (isNaN(orderId)) {
-    res
+    return res
       .status(422)
       .json({ msg: "El numero de orden es invalido", error: true });
-    return;
   }
 
-  if (!Orders.getOrder(orderId)) {
-    res.status(404).json({ msg: `La orden con id ${orderId} no existe` });
-    return;
+  try {
+    const order = await orderRepository.get.byId(orderId, false);
+    if (!order) return res.status(404).json({ msg: `La orden con id ${orderId} no existe` });
+    req.order = order;
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  next();
 }
 
-async function validateNewOrder(req, res, next) {
+async function validateOrderBody(req, res, next) {
+  console.log("validateOrderBody...")
   const { products, paymentMethodId } = req.body;
-
   if (
     !(typeof products === "object" && Array.isArray(products)) ||
     typeof paymentMethodId !== "number"
   ) {
     res.status(422).json({ msg: "Los campos son invalidos", error: true });
     return;
+  }
+  const payMethod = await paymentMethodRepository.get.byId(paymentMethodId);
+  if (!payMethod) {
+    return res.status(422).json({ msg: "El metodo de pago no existe", error: true });
   }
 
   // Validates if every object in the products array contains the required parameters (name, amount)
@@ -43,13 +49,14 @@ async function validateNewOrder(req, res, next) {
       res.status(422).json({ msg: "Los productos son invalidos", error: true });
       return;
     }
-    const productObj = await productRepository.get.byId(id);
-    if (!productObj?.enabled) {
-      res.status(422).json({ error: `El producto con id ${id} no existe` }); // No existe para el usuario
+
+    const productInstance = await productRepository.get.byId(id);
+    if (!productInstance?.enabled) { // If the product is not enabled or does not exist
+      res.status(422).json({ error: req.user.isAdmin ? "El producto no esta habilitado" : `El producto con id ${id} no existe`}); // No existe para el usuario
       return;
     }
   }
-
+  req.orderBody = { products, paymentMethodId };
   next();
 }
 
@@ -71,43 +78,22 @@ function validateOrderStatus(req, res, next) {
   res.status(422).json({ msg: "El estado ingresado es invalido", error: true });
 }
 
-function canEditOrder(req, res, next) {
-  const userID = parseInt(req.header("userID"));
-  const orderId = parseInt(req.params.orderId);
-  const order = Orders.getOrder(orderId);
-
-  if (order.status !== orderStatuses.NUEVO) {
-    res.status(422).json({
-      msg: "No se puede editar un pedido confirmado, pruebe cancelandolo y creando un nuevo pedido",
-      error: true,
-    });
-    return;
-  }
-
-  if (order.userId !== userID) {
-    res.status(401).json({
+function isOrderOwner(req, res, next) {
+  if (req.order.userId !== req.user.id) {
+    return res.status(401).json({
       msg: "No es posible editar este pedido, solo se permiten modificar pedidos propios",
       error: true,
     });
-    return;
   }
-
   next();
 }
 
 function canSetOrderStatus(req, res, next) {
-  const userID = parseInt(req.header("userID"));
-  const orderId = parseInt(req.params.orderId);
-  const order = Orders.getOrder(orderId);
-
   const newStatus = req.body.status; // Status to set
 
-  switch (order.status) {
+  switch (req.order.status) {
     case orderStatuses.NUEVO:
-      if (
-        newStatus !== orderStatuses.CONFIRMADO &&
-        newStatus !== orderStatuses.CONFIRMADO
-      ) {
+      if (newStatus !== orderStatuses.CONFIRMADO) {
         // The user wants to change the order to a state that he cant set
         res.status(422).json({
           error: `El usuario no puede cambiar el pedido a ese estado (${newStatus})`,
@@ -154,7 +140,7 @@ function canSetOrderStatus(req, res, next) {
       break;
   }
 
-  if (order.userId !== userID) {
+  if (req.order.userId !== req.user.id) {
     res.status(401).json({
       msg: "No se puede editar este pedido, solo se permite modificar pedidos propios",
       error: true,
@@ -167,8 +153,8 @@ function canSetOrderStatus(req, res, next) {
 
 module.exports = {
   orderExists,
-  validateNewOrder,
-  canEditOrder,
+  validateOrderBody,
+  isOrderOwner,
   validateOrderStatus,
   canSetOrderStatus,
 };
