@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:5000
     description: Servidor de desarrollo
+  - url: https://delilah-api-mip.tk/api
+    description: Servidor publico
 
 paths:
   /users:
