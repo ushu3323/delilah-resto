@@ -30,7 +30,7 @@ jobs:
       id: env-file
       run: |
         touch .env
-        echo EC2_ADDRESSES="$(aws ec2 describe-instances | jq -c --arg sg_name ${{ env.SECURITYGROUP_NAME }} '.Reservations[].Instances | map(select( any(.SecurityGroups[]; .GroupName == $sg_name) )) | map(.PublicIpAddress)')" >> .env
+        echo EC2_ADDRESSES="$(aws ec2 describe-instances | jq -c --raw-output --arg sg_name "ec2-sg" '.Reservations[].Instances | map(select( any(.SecurityGroups[]; .GroupName == $sg_name) )) | map(.PublicIpAddress + ",") | add')" >> .env
         cat .env
         echo NODE_PORT=${{ secrets.NODE_PORT }} >> .env
         echo ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} >> .env

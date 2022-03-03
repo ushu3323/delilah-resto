@@ -1,3 +1,5 @@
+const hosts = process.env.EC2_ADDRESSES.split(",").filter((address) => address.length)
+console.log(hosts)
 module.exports = {
   apps: [
     {
@@ -16,7 +18,7 @@ module.exports = {
   deploy : {
     production : {
       user : 'ec2-user',
-      host: JSON.parse(process.env.EC2_ADDRESSES),
+      host: hosts,
       ref  : 'origin/master',
       repo: 'https://github.com/ushu3323/delilah-resto',
       path : '/home/ec2-user/delilah-resto',
