@@ -30,9 +30,11 @@ jobs:
         echo $EC2_ADDR
         echo "EC2_ADDRESSES=$(node -e "console.log((\"$EC2_ADDR\").split(\",\").filter((address) => address.length).join(\",\"))")"
         echo "EC2_ADDRESSES=$(node -e "console.log((\"$EC2_ADDR\").split(\",\").filter((address) => address.length).join(\",\"))")" >> $GITHUB_ENV
+
     - name: checking env exists
       id: env-exists
       run: echo ${{ env.EC2_ADDRESSES }}
+      
     - name: executing remote ssh commands using ssh key
       uses: appleboy/ssh-action@master
       with:
@@ -40,6 +42,4 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         sync: true
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          whoami
-          ls -a
+        script: sh deploy.sh
