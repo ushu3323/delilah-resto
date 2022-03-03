@@ -55,7 +55,7 @@ jobs:
         SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
 
     - name: Install PM2
-      run: npm i pm2
+      run: npm i pm2 -g
 
     - name: Deploy to ec2 instances via pm2
       id: deploy-ec2
