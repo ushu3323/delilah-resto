@@ -1,0 +1,65 @@
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: sa-east-1 # set this to your preferred AWS region, e.g. us-west-1
+  SECURITYGROUP_NAME: ec2-sg # security group name that instances should have to be used on deploy
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Create env file
+      id: env-file
+      run: |
+        echo EC2_ADDRESSES=$(aws ec2 describe-instances | jq --arg sg_name $SG_NAME '.Reservations[].Instances | map(select( any(.SecurityGroups[]; .GroupName == $sg_name) )) | map(.PublicIpAddress)') >> .env
+        touch .env
+        echo NODE_PORT=${{ secrets.NODE_PORT }} >> .env
+        echo ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} >> .env
+        echo ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} >> .env
+        echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+        echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+        echo DB_USER=${{ secrets.DB_USER }} >> .env
+        echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+        echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+      env:
+        SG_NAME: ${{ env.SECURITYGROUP_NAME }}
+      shell: bash
+
+    - name: Setup SSH
+      id: setup-ssh
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_PRIVATE_KEY" > ./.ssh/deploy.key
+        sudo chmod 600 ./deploy.key
+        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      shell: bash
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+    - name: Install PM2
+      run: npm i pm2
+
+    - name: Deploy to ec2 instances via pm2
+      id: deploy-ec2
+      run: |
+        echo "EC2 instances: $EC2_ADDRESSES"
+        env $(cat .env | grep -v \"#\" | xargs) pm2 deploy ecosystem.config.js production
