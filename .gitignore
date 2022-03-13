@@ -2,5 +2,5 @@ node_modules
 .env
 .vscode
 *.private.sh
-res/
-testFile.js
+
+/internal
