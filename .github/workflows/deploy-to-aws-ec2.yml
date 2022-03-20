@@ -45,4 +45,6 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         sync: true
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: sh deploy.sh
+        script: |
+          rm -f ~/ecosystem.config.js
+          sh deploy.sh
