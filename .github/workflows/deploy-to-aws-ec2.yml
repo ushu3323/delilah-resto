@@ -31,7 +31,7 @@ jobs:
     - name: Get instance address
       run: |
         AWS_FILTERS=Name=instance-state-name,Values=running Name=tag:${{ env.AWS_TAG_NAME}},Values=${{ env.AWS_TAG_NAME }}
-        AWS_QUERY='Reservations[*].Instances[*].PrivateIpAddress'
+        AWS_QUERY='Reservations[*].Instances[*].PublicIpAddress'
         AWS_JSON=$(aws ec2 describe-instances --filters $AWS_FILTERS --query $AWS_QUERY)
 
         EC2_ADDR=$(echo $AWS_JSON | jq --raw-output 'flatten | join(",")')
