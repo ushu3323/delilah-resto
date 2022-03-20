@@ -41,7 +41,6 @@ jobs:
     - name: executing remote ssh commands using ssh key
       if: ${{ env.EC2_ADDRESSES != '' }}
       uses: appleboy/ssh-action@master
-      timeout-minutes: 10
       with:
         host: ${{ env.EC2_ADDRESSES }}
         username: ${{ secrets.SSH_USERNAME }}
