@@ -1,6 +1,10 @@
 name: Deploy to Amazon EC2
 
 on:
+  workflow_dispatch:
+    branches:
+      - master
+      - gh-action
   push:
     branches:
       - main
