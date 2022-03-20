@@ -39,7 +39,6 @@ jobs:
         echo "EC2_ADDRESSES=$EC2_ADDR" >> $GITHUB_ENV
       
     - name: executing remote ssh commands using ssh key
-      if: ${{ env.EC2_ADDRESSES != '' }}
       uses: appleboy/ssh-action@master
       with:
         host: ${{ env.EC2_ADDRESSES }}
