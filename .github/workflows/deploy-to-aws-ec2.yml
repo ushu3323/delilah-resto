@@ -39,12 +39,12 @@ jobs:
         echo "EC2_ADDRESSES=$EC2_ADDR" >> $GITHUB_ENV
       
     - name: executing remote ssh commands using ssh key
-      if: env.EC2_ADDRESSES != ""
       uses: appleboy/ssh-action@master
-      timeout-minutes: 10
       with:
         host: ${{ env.EC2_ADDRESSES }}
         username: ${{ secrets.SSH_USERNAME }}
         sync: true
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: sh deploy.sh
+        script: |
+          rm -f ~/ecosystem.config.js
+          sh deploy.sh
