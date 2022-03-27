@@ -133,7 +133,7 @@ function idHeaderValidation(req, res, next) {
 
 function jwtDecode(token) {
   try {
-    const decoded = jwt.verify(token, config.server.key);
+    const decoded = jwt.verify(token, config.auth.jwt.key);
     return decoded;
   } catch (error) {
     console.log("JWT Error:", error.message);

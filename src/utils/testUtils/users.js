@@ -58,7 +58,7 @@ const deletePlaceholders = async () => {
 
 const getToken = (user) => {
   const { email, password } = user;
-  const token = jwt.sign({ email, password }, config.server.key);
+  const token = jwt.sign({ email, password }, config.auth.jwt.key);
   return token;
 };
 

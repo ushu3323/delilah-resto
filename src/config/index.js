@@ -16,10 +16,14 @@ module.exports = {
   },
   server: {
     port: process.env.NODE_PORT || 3000,
-    key: process.env.KEY || "YouShouldntReadThis:O",
   },
   admin: {
     email: process.env.ADMIN_EMAIL || "admin@test.com",
     password: process.env.ADMIN_PASSWORD || "admin",
+  },
+  auth: {
+    jwt: {
+      key: process.env.JWT_KEY || "YouShouldntReadThis:O",
+    },
   },
 };
