@@ -1,13 +1,18 @@
 name: Deploy to Amazon EC2
 
 on:
+  workflow_dispatch:
+    branches:
+      - master
+      - gh-action
   push:
     branches:
       - main
 
 env:
   AWS_REGION: sa-east-1 # set this to your preferred AWS region, e.g. us-west-1
-  SECURITYGROUP_NAME: ec2-sg # security group name that instances should have to be used on deployment
+  AWS_TAG_NAME: product
+  AWS_TAG_VALUE: delilah-resto
 
 jobs:
   deploy:
@@ -25,15 +30,13 @@ jobs:
     
     - name: Get instance address
       run: |
-        AWS_JSON=$(aws ec2 describe-instances)
-        EC2_ADDR="$(echo $AWS_JSON | jq -c --raw-output --arg sg_name ${{ env.SECURITYGROUP_NAME }} '.Reservations[].Instances | map(select( any(.SecurityGroups[]; .GroupName == $sg_name) )) | map(.PublicIpAddress + ",") | add')"
-        echo $EC2_ADDR
-        echo "EC2_ADDRESSES=$(node -e "console.log((\"$EC2_ADDR\").split(\",\").filter((address) => address.length).join(\",\"))")"
-        echo "EC2_ADDRESSES=$(node -e "console.log((\"$EC2_ADDR\").split(\",\").filter((address) => address.length).join(\",\"))")" >> $GITHUB_ENV
+        AWS_FILTERS=Name=instance-state-name,Values=running Name=tag:${{ env.AWS_TAG_NAME}},Values=${{ env.AWS_TAG_NAME }}
+        AWS_QUERY='Reservations[*].Instances[*].PublicIpAddress'
+        AWS_JSON=$(aws ec2 describe-instances --filters $AWS_FILTERS --query $AWS_QUERY)
 
-    - name: checking env exists
-      id: env-exists
-      run: echo ${{ env.EC2_ADDRESSES }}
+        EC2_ADDR=$(echo $AWS_JSON | jq --raw-output 'flatten | join(",")')
+        echo $EC2_ADDR
+        echo "EC2_ADDRESSES=$EC2_ADDR" >> $GITHUB_ENV
       
     - name: executing remote ssh commands using ssh key
       uses: appleboy/ssh-action@master
@@ -42,4 +45,6 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         sync: true
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: sh deploy.sh
+        script: |
+          rm -f ~/ecosystem.config.js
+          sh deploy.sh

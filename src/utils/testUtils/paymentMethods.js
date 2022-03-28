@@ -12,7 +12,7 @@ const placeholders = {
   },
   cash: {
     name: 'Efectivo',
-    enabled: false,
+    enabled: true,
   },
   testMethod: {
     name: "test",
