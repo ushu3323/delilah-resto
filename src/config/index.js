@@ -1,25 +1,26 @@
 require("dotenv").config();
+const env = require('../utils/envParser');
 
 module.exports = {
   db: {
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || "3306",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    database: process.env.DB_NAME || "delilah_resto",
+    host: env.getString("DB_HOST", "localhost"),
+    port: env.getNumber("DB_PORT", "3306"),
+    user:env.getString("DB_USER", "root"),
+    password:env.getString("DB_PASSWORD", ""),
+    database:env.getString("DB_NAME", "delilah_resto"),
   },
   cache: {
-    host: process.env.CACHE_HOST || "localhost",
-    port: process.env.CACHE_PORT || "6379",
-    user: process.env.CACHE_USER || "",
-    password: process.env.CACHE_PASSWORD || "",
+    host:env.getString("CACHE_HOST", "localhost"),
+    port: env.getNumber("CACHE_PORT", 6379),
+    user:env.getString("CACHE_USER", ""),
+    password:env.getString("CACHE_PASSWORD", ""),
   },
   server: {
-    port: process.env.NODE_PORT || 3000,
-    key: process.env.KEY || "YouShouldntReadThis:O",
+    port: env.getNumber("NODE_PORT", 3000),
+    key:env.getString("KEY", "YouShouldntReadThis:O"),
   },
   admin: {
-    email: process.env.ADMIN_EMAIL || "admin@test.com",
-    password: process.env.ADMIN_PASSWORD || "admin",
+    email:env.getString("ADMIN_EMAIL", "admin@test.com"),
+    password:env.getString("ADMIN_PASSWORD", "admin"),
   },
 };
