@@ -27,4 +27,14 @@ module.exports = {
       key: env.getBoolean("JWT_KEY", "YouShouldntReadThis:O"),
     },
   },
+  session: {
+    keys: [
+      env.getString("SESSION_KEY_A", "ReadingThisIsNotAllowed"),
+      env.getString("SESSION_KEY_B", "O:ThisTextToo!!"),
+    ],
+    cookie: {
+      age: env.getNumber("SESSION_COOKIE_AGE", 24 * 60 * 60 * 1000),
+      secure: env.getBoolean("SESSION_COOKIE_SECURE", false),
+    }
+  }
 };

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cookie_session = require('cookie-session');
 const passport = require('./src/auth/passport');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
@@ -11,6 +12,12 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 const app = express();
 
 app.use(cors(), helmet(), express.json());
+app.use(cookie_session({
+    name: 'session',
+    keys: config.session.keys,
+    maxAge: config.session.cookie.age,
+    secure: config.session.cookie.secure,
+}));
 app.use(passport.initialize(), passport.session());
 app.use(morgan('dev'));
 
