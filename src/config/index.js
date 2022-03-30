@@ -24,7 +24,7 @@ module.exports = {
   },
   auth: {
     jwt: {
-      key: env.getBoolean(JWT_KEY, "YouShouldntReadThis:O"),
+      key: env.getBoolean("JWT_KEY", "YouShouldntReadThis:O"),
     },
   },
 };
