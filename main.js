@@ -28,6 +28,7 @@ app.use((error, req, res, next) => {
 })
 
 // Routes
+app.use("/auth", require("./src/auth/routes/auth.routes"));
 app.use("/users", require("./src/user/routes/users.routes"));
 app.use("/orders", require('./src/order/routes/orders.routes'))
 app.use("/products", require("./src/product/routes/products.routes"));
