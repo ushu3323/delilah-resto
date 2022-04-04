@@ -8,7 +8,6 @@ passport.use(new LocalStrategy(
     usernameField: "email",
     passwordField: "password",
     session: true,
-
   },
   async (email, password, done) => {
     console.log("Autenticando: ", email)
