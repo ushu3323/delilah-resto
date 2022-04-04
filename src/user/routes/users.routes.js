@@ -10,8 +10,13 @@ route.get('/', usersM.authenticate, usersM.isAdmin, usersC.allUsers);
 // Register a new user
 route.post('/', usersM.validateRegister, usersC.registerUser);
 
-// Sends a jwt token to authenticate in another routes
-route.post('/login', usersM.validateLogin, usersC.login);
+// Sends active session user
+route.get('/me', usersM.isAuthenticated, (req,res) => {
+  const user = req.user.toJSON(); // user is a sequelize object
+  delete user.password;
+
+  res.json(user);
+})
 
 // Enables/disables an user
 route.patch('/:userID', usersM.authAdmin, usersM.validateEnabled, usersC.enableUser);
