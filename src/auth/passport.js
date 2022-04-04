@@ -23,5 +23,6 @@ passport.deserializeUser(async (serializedUser, done) => {
   }
 });
 
-
 module.exports = passport;
+
+require('./strategies/local.strategy');

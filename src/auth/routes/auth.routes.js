@@ -1,4 +1,5 @@
 const route = require('express').Router();
+const passport = require('passport');
 
 route.get('/logout', (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -9,5 +10,11 @@ route.get('/logout', (req, res, next) => {
   }
 });
 
+// Login a user
+route.post('/local/login', passport.authenticate('local'), (req, res) => {
+  const user = req.user.toJSON(); // user is a sequelize object
+  delete user.password;
+  res.json({ msg: "autenticado correctamente", user, error: false });
+});
 
 module.exports = route;
