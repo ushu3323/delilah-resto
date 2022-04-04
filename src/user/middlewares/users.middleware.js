@@ -174,6 +174,11 @@ async function isAdmin(req, res, next) {
   }
 }
 
+function isAuthenticated(req, res, next) {
+  if (req.user) return next()
+  res.status(401).json({ msg: "No se encuentra autenticado", user: req.user});
+}
+
 /**
  * @deprecated this will no longer work due to security reasons, instead implement jwt in every route
  */
@@ -191,6 +196,7 @@ module.exports = {
   authenticate,
   idHeaderValidation,
   isAdminMiddle,
+  isAuthenticated,
   isAdmin,
   authAdmin: [authenticate, isAdmin],
 };
