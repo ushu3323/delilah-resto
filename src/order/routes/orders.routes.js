@@ -4,14 +4,13 @@ const usersM = require('../../user/middlewares/users.middleware');
 const ordersM = require('../middlewares/orders.middleware');
 const { getOrders, addOrder, editOrder, editOrderStatus } = require('../controllers/orders.controller');
 
-route.use(usersM.authenticate);
+route.use(usersM.isAuthenticated);
 
 route.get('/', getOrders);
 
 route.post('/', ordersM.validateOrderBody, addOrder);
 
 route.put('/:orderId',
-  usersM.authenticate,
   ordersM.orderExists,
   ordersM.validateOrderBody,
   usersM.isAdminMiddle(

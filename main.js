@@ -44,6 +44,7 @@ app.get("/", (req,res) =>{
     );
 });
 app.use((req,res,next) => {
+    if (res.writableEnded) return
     res.status(404).json({ msg: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
 });
 
