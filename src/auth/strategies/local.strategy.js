@@ -16,7 +16,7 @@ passport.use(new LocalStrategy(
       const user = await userRepository.get.byEmail(email);
       if (!user) return done(null, false, { message: badAuthMsg });
       if (user.password !== sha256(password)) return done(null, false, { message: badAuthMsg });
-      
+      if (!user.enabled) return done(null, false, { message: "Usuario deshabilitado" });
       // Strategy used to authenticate the user (used on user serialization)
       user.passportStrategy = "local";
 
