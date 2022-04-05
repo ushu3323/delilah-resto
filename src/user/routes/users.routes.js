@@ -5,7 +5,7 @@ const usersC = require('../controllers/users.controller');
 const usersM = require('../middlewares/users.middleware');
 
 // Sends all the users
-route.get('/', usersM.authenticate, usersM.isAdmin, usersC.allUsers);
+route.get('/', usersM.isAuthenticated, usersM.isAdmin, usersC.allUsers);
 
 // Register a new user
 route.post('/', usersM.validateRegister, usersC.registerUser);
@@ -19,6 +19,6 @@ route.get('/me', usersM.isAuthenticated, (req,res) => {
 })
 
 // Enables/disables an user
-route.patch('/:userID', usersM.authAdmin, usersM.validateEnabled, usersC.enableUser);
+route.patch('/:userID', usersM.isAuthenticated, usersM.isAdmin, usersM.validateEnabled, usersC.enableUser);
 
 module.exports = route;
