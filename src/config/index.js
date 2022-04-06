@@ -5,22 +5,33 @@ module.exports = {
   db: {
     host: env.getString("DB_HOST", "localhost"),
     port: env.getNumber("DB_PORT", "3306"),
-    user:env.getString("DB_USER", "root"),
-    password:env.getString("DB_PASSWORD", ""),
-    database:env.getString("DB_NAME", "delilah_resto"),
+    user: env.getString("DB_USER", "root"),
+    password: env.getString("DB_PASSWORD", ""),
+    database: env.getString("DB_NAME", "delilah_resto"),
   },
   cache: {
-    host:env.getString("CACHE_HOST", "localhost"),
+    host: env.getString("CACHE_HOST", "localhost"),
     port: env.getNumber("CACHE_PORT", 6379),
-    user:env.getString("CACHE_USER", ""),
-    password:env.getString("CACHE_PASSWORD", ""),
+    user: env.getString("CACHE_USER", ""),
+    password: env.getString("CACHE_PASSWORD", ""),
   },
   server: {
     port: env.getNumber("NODE_PORT", 3000),
-    key:env.getString("KEY", "YouShouldntReadThis:O"),
   },
   admin: {
-    email:env.getString("ADMIN_EMAIL", "admin@test.com"),
-    password:env.getString("ADMIN_PASSWORD", "admin"),
+    email: env.getString("ADMIN_EMAIL", "admin@test.com"),
+    password: env.getString("ADMIN_PASSWORD", "admin"),
   },
+  auth: {
+  },
+  session: {
+    keys: [
+      env.getString("SESSION_KEY_A", "ReadingThisIsNotAllowed"),
+      env.getString("SESSION_KEY_B", "O:ThisTextToo!!"),
+    ],
+    cookie: {
+      age: env.getNumber("SESSION_COOKIE_AGE", 24 * 60 * 60 * 1000),
+      secure: env.getBoolean("SESSION_COOKIE_SECURE", false),
+    }
+  }
 };

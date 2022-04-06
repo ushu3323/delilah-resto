@@ -133,7 +133,7 @@ function idHeaderValidation(req, res, next) {
 
 function jwtDecode(token) {
   try {
-    const decoded = jwt.verify(token, config.server.key);
+    const decoded = jwt.verify(token, config.auth.jwt.key);
     return decoded;
   } catch (error) {
     console.log("JWT Error:", error.message);
@@ -174,6 +174,11 @@ async function isAdmin(req, res, next) {
   }
 }
 
+function isAuthenticated(req, res, next) {
+  if (req.user) return next()
+  res.status(401).json({ msg: "No se encuentra autenticado", user: req.user});
+}
+
 /**
  * @deprecated this will no longer work due to security reasons, instead implement jwt in every route
  */
@@ -191,6 +196,7 @@ module.exports = {
   authenticate,
   idHeaderValidation,
   isAdminMiddle,
+  isAuthenticated,
   isAdmin,
   authAdmin: [authenticate, isAdmin],
 };
