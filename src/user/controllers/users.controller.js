@@ -1,4 +1,3 @@
-const { Users } = require("../../models/Data");
 const userRepository = require('../repositories/user.repository');
 const jwt = require('jsonwebtoken');
 const config = require('../../config');

@@ -1,9 +1,3 @@
-const {
-  Orders,
-  Users,
-  Products,
-  PaymentMethods,
-} = require("../../models/Data");
 const orderStatuses = require("../../utils/OrderStatuses");
 const orderRepository = require("../repository/order.repository");
 

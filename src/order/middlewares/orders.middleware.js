@@ -1,5 +1,3 @@
-const { Products, Orders } = require("../../models/Data");
-const Order = require("../../models/Order");
 const orderStatuses = require("../../utils/OrderStatuses");
 const paymentMethodRepository = require("../../paymentMethod/repository/paymentMethod.repository");
 const productRepository = require("../../product/repositories/product.repository");
