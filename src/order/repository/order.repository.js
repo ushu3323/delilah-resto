@@ -1,5 +1,5 @@
 const orderStatuses = require("../../utils/OrderStatuses");
-const sequelize = require("../../connection/sequelize");
+const sequelize = require("../../database/sequelize");
 
 const Order = require("../model/Order");
 const Product = require("../../product/model/Product");

@@ -5,7 +5,7 @@ const OrderProducts = require("../order/model/OrderProducts");
 const paymentMethod = require("../paymentMethod/model/PaymentMethod");
 
 const config = require("../config");
-const sequelize = require("../connection/sequelize");
+const sequelize = require("../database/sequelize");
 const { sha256 } = require("js-sha256");
 
 const actions = {
