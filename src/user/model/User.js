@@ -1,6 +1,7 @@
 const { Model, DataTypes} = require('sequelize');
 const sequelize = require('../../database/sequelize');
 const Order = require('../../order/model/Order');
+const Credential = require('../../auth/model/Credential');
 
 class User extends Model {}
 
@@ -41,5 +42,6 @@ User.init({
 
 User.Order = User.hasMany(Order);
 Order.belongsTo(User, {as: 'user', foreignKey: 'userId'});
+User.hasMany(Credential);
 
 module.exports = User;
