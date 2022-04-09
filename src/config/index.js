@@ -23,6 +23,11 @@ module.exports = {
     password: env.getString("ADMIN_PASSWORD", "admin"),
   },
   auth: {
+    google: {
+      clientID: env.getString("GOOGLE_CLIENT_ID", ""),
+      clientSecret: env.getString("GOOGLE_CLIENT_SECRET", ""),
+      callback_url: env.getString("GOOGLE_CALLBACK_URL", "localhost:3000/auth/google/callback"),
+    },
   },
   session: {
     keys: [

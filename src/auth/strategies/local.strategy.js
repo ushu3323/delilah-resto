@@ -15,11 +15,14 @@ passport.use(new LocalStrategy(
     try {
       const user = await userRepository.get.byEmail(email);
       if (!user) return done(null, false, { message: badAuthMsg });
-      if (user.password !== sha256(password)) return done(null, false, { message: badAuthMsg });
+      let credential = (await user.getCredentials({
+        where: { provider_name: 'local' }
+      }))[0];
+      
+      if (!credential || credential.password !== sha256(password)) return done(null, false, { message: badAuthMsg });
       if (!user.enabled) return done(null, false, { message: "Usuario deshabilitado" });
-      // Strategy used to authenticate the user (used on user serialization)
-      user.passportStrategy = "local";
-
+      
+      user.passportStrategy = credential.provider_name;
       return done(null, user);
     } catch (err) {
       return done(err);
