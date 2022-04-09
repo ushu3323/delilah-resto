@@ -40,6 +40,20 @@ module.exports = {
       users = users.map(u => u.toJSON());
       return users;
     },
+    byCredential: async (credential) => {
+      let user = await User.findOne({
+        include: {
+          model: Credential,
+          as: 'credentials',
+          required: true,
+          where: {
+            provider_name: credential.provider_name,
+            provider_userId: credential.provider_userId
+          }
+        },
+      });
+      return user;
+    },
     byId: async (id) => {
       const user = await User.findByPk(id);
       return user;
