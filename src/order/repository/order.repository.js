@@ -15,13 +15,7 @@ async function parseOrder(order) {
     delete product.info;
     return product;
   });
-  o.paymentMethod = await paymentMethodRepository.get.byId(o.paymentMethodId);
-  o.paymentMethod = {
-    id: o.paymentMethod.id,
-    name: o.paymentMethod.name,
-  }
-  delete o.paymentMethodId;
-  // console.log(o);
+
   return o;
 }
 
@@ -32,7 +26,7 @@ const includeOptions = [
     through: { attributes: ["amount"], as: "info" }
   },
   { model: User, as: "user", attributes: { exclude: ["password", "isAdmin", "enabled"] } },
-  //{ model: PaymentMethod},
+  { model: PaymentMethod, attributes: { exclude: ["createdAt", "updatedAt", "enabled"] } }
 ]
 
 module.exports = {

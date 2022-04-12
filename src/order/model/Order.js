@@ -11,5 +11,8 @@ Order.init({
   },
 }, { sequelize, modelName: 'order' });
 
-PaymentMethod.hasOne(Order, { foreignKey: "paymentMethodId" });;
 module.exports = Order;
+
+const PaymentMethod = require('../../paymentMethod/model/PaymentMethod');
+const OrderProducts = require('./OrderProducts'); // Initialize association table
+Order.belongsTo(PaymentMethod);
