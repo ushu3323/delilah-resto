@@ -3,55 +3,55 @@ const sequelize = require("../../database/sequelize");
 
 const Order = require("../model/Order");
 const Product = require("../../product/model/Product");
-const OrderProducts = require("../model/OrderProducts");
 const User = require("../../user/model/User");
-const paymentMethodRepository = require("../../paymentMethod/repository/paymentMethod.repository");
-
-
-async function parseOrder(order) {
-  let o = { ...order.toJSON() };
-  o.products.map((product) => {
-    product.amount = product.info.amount;
-    delete product.info;
-    return product;
-  });
-
-  return o;
-}
-
-const includeOptions = [
-  {
+const PaymentMethod = require("../../paymentMethod/model/PaymentMethod");
+const includeOptions = {
+  product: {
     model: Product,
     attributes: { exclude: ["enabled", "createdAt", "updatedAt"] },
-    through: { attributes: ["amount"], as: "info" }
+    through: { attributes: ["amount"] }
   },
-  { model: User, as: "user", attributes: { exclude: ["password", "isAdmin", "enabled"] } },
-  { model: PaymentMethod, attributes: { exclude: ["createdAt", "updatedAt", "enabled"] } }
-]
+  user: { model: User, as: "user", attributes: { exclude: ["password"] }},
+  paymentMethod: { model: PaymentMethod, attributes: {exclude: ["createdAt", "updatedAt", "enabled"] }},
+  get all() {
+    return [this.product, this.user, this.paymentMethod]
+  }
+}
+const attrOptions = { exclude: ["checkout_id", "total"] }
 
 module.exports = {
   get: {
     all: async () => {
       const orders = await Order.findAll({
-        attributes: { exclude: ["userId"] },
-        include: includeOptions
+        attributes: attrOptions,
+        include: includeOptions.all
       });
-      return (await Promise.all(orders.map(async (o) => await parseOrder(o))));
+      return orders;
     },
     byStatus: async (status) => {
-      const orders = await Order.findAll({ where: { status }, include: Product });
-      return await Promise.all(orders.map(async (o) => await parseOrder(o)));
+      const orders = await Order.findAll({
+        where: { status },
+        attributes: attrOptions,
+        include: includeOptions.all
+      });
+      return await orders;
     },
     byId: async (id, raw = true) => {
       const order = await Order.findOne({
         where: { id },
-        include: includeOptions
+        attributes: attrOptions,
+        include: includeOptions.all
       });
-      return raw ? parseOrder(order) : order;
+      if (order) return (raw ? order.toJSON() : order);
     },
     byUserId: async (userId) => {
-      let orders = await Order.findAll({ where: { userId }, include: includeOptions[0] });
-      return await Promise.all(orders.map(async (o) => await parseOrder(o)));
+      let orders = await Order.findAll({
+        where: { userId },
+        attributes: attrOptions,
+        include: [includeOptions.product, includeOptions.paymentMethod]
+      });
+      console.log(orders);
+      return orders;
     },
   },
   del: {
