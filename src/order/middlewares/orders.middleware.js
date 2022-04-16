@@ -77,9 +77,9 @@ function validateOrderStatus(req, res, next) {
 }
 
 function isOrderOwner(req, res, next) {
-  if (req.order.userId !== req.user.id) {
-    return res.status(401).json({
-      msg: "No es posible editar este pedido, solo se permiten modificar pedidos propios",
+  if (req.order.user.id != req.user.id) {
+    return res.status(404).json({
+      msg: `La orden con id ${req.order.id} no existe`,
       error: true,
     });
   }
@@ -138,7 +138,7 @@ function canSetOrderStatus(req, res, next) {
       break;
   }
 
-  if (req.order.userId !== req.user.id) {
+  if (req.order.user.id !== req.user.id) {
     res.status(401).json({
       msg: "No se puede editar este pedido, solo se permite modificar pedidos propios",
       error: true,

@@ -82,7 +82,7 @@ module.exports = {
       for (p of orderBody.products) {
         await order.addProduct(p.id, { through: { amount: p.amount } });
       }
-      order.paymentMethodId = orderBody.paymentMethodId;
+      await order.update({ paymentMethodId: orderBody.paymentMethodId });
       await order.save();
     });
     return result;
