@@ -53,6 +53,16 @@ module.exports = {
       console.log(orders);
       return orders;
     },
+    byCheckoutId: async (checkoutId) => {
+      let order = await Order.findOne({
+        where: {
+          checkout_id: checkoutId
+        },
+        // attributes: attrOptions,
+        include: includeOptions.all
+      });
+      return order;
+    }
   },
   del: {
     byId: async (id) => await Order.destroy({ where: { id } }),
