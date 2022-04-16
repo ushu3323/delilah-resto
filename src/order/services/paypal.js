@@ -51,18 +51,21 @@ async function createOrder(purchase_units) {
   return response.data;
 }
 
-async function capturePayment(orderId) {
+async function captureOrder(orderId) {
   const accessToken = await generateAccessToken();
-  const url = `${base}/v2/checkout/orders/${orderId}/capture`;
-  const response = await fetch(url, {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
+  const url = `${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`;
+  let response;
+  try {
+    response = await request.post(url, null, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`,
+      },
+    });
+  } catch (err) {
+    resolve_error(err)
+  }
+  return response.data;
 }
 
 async function generateAccessToken() {
@@ -75,14 +78,11 @@ async function generateAccessToken() {
     const data = response.data
     return data.access_token;
   } catch (err) {
-    const res = err.response;
-    throw new Error(err.message, {
-      status: res.status,
-      body: res.data
-    });
+    resolve_error(err)
   }
 }
 
 module.exports = {
   createOrder,
+  captureOrder
 }
