@@ -13,7 +13,7 @@ async function orderExists(req, res, next) {
 
   try {
     const order = await orderRepository.get.byId(orderId, false);
-    if (!order) return res.status(404).json({ msg: `La orden con id ${orderId} no existe` });
+    if (!order) return res.status(404).json({ msg: `La orden con id ${orderId} no existe`, error: true});
     req.order = order;
     next();
   } catch (error) {
@@ -172,4 +172,5 @@ module.exports = {
   isOrderOwner,
   validateOrderStatus,
   canSetOrderStatus,
+  getCheckoutOrder
 };
