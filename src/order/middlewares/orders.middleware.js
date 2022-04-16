@@ -149,6 +149,23 @@ function canSetOrderStatus(req, res, next) {
   next();
 }
 
+async function getCheckoutOrder(req, res, next) {
+  const { token:checkoutId, PayerID } = req.query;
+  try {
+    const order = await orderRepository.get.byCheckoutId(checkoutId);
+    console.log("getCheckoutOrder:", {
+      id: order.id,
+      checkoutId: order.getDataValue("checkout_id"),
+      products: order.products,
+    })
+    if (!order) return res.sendStatus(400); //  invalid token or asociated Order is already confirmed
+    req.order = order;
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   orderExists,
   validateOrderBody,
