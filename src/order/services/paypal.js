@@ -4,6 +4,22 @@ const paypal_config = config.services.paypal;
 
 const PAYPAL_API = config.server.enviroment === "production" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com"
 
+function resolve_error(err) {
+  const res = err.response;
+  if (!res) throw err // Internal internal error, throw it 
+  // Service error, parse error handler response
+  const error = new Error(err.cause);
+  const dataError = res.data;
+  error.errorDetails = {
+    paypal: {
+      name: dataError.name,
+      details: dataError.details
+    }
+  };
+  throw error;
+}
+
+
 async function createOrder(purchase_units) {
   const accessToken = await generateAccessToken();
   const body = {
@@ -17,16 +33,20 @@ async function createOrder(purchase_units) {
       cancel_url: paypal_config.cancel_callback_url,
     }
   }
-
-  const response = await request.post(`${PAYPAL_API}/v2/checkout/orders`, 
-    body,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`
+  let response;
+  try {
+    response = await request.post(`${PAYPAL_API}/v2/checkout/orders`, 
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        }
       }
-    }
-  );
+    );
+  } catch (err) {
+    resolve_error(err)
+  }
 
   return response.data;
 }
