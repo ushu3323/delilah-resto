@@ -33,7 +33,7 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 // Error handler
 app.use((error, req, res, next) => {
     console.log(error);
-    res.status(500).json({ msg: "Ha ocurrido un error interno", error: true, errorDetails: error.errorDetails});
+    res.status(500).json({ message: "Ha ocurrido un error interno", error: true, errorDetails: error.errorDetails});
 })
 
 // Homepage
@@ -45,7 +45,7 @@ app.get("/", (req,res) =>{
 });
 app.use((req,res,next) => {
     if (res.writableEnded) return
-    res.status(404).json({ msg: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
+    res.status(404).json({ message: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
 });
 
 app.listen(config.server.port, () => {

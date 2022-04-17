@@ -5,9 +5,9 @@ const route = require('express').Router();
 route.get('/logout', (req, res, next) => {
   if (req.isAuthenticated()) {
     req.logOut();
-    res.status(200).json({ msg: "Logout existoso", error: false });
+    res.status(200).json({ message: "Logout existoso", error: false });
   } else {
-    res.status(400).json({msg: "No se puede realizar un logout, no se encuentra autenticado", error: true});
+    res.status(400).json({ message: "No se puede realizar un logout, no se encuentra autenticado", error: true});
   }
 });
 
@@ -15,11 +15,11 @@ route.get('/logout', (req, res, next) => {
 route.post('/local/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
-    if (info) return res.status(401).json({ msg: info.message, error: true });
+    if (info) return res.status(401).json({ message: info.message, error: true });
     let jsonUser = user.toJSON(); // user is a sequelize object
     delete jsonUser.password;
     req.login(user, (err) => err ? next(err) : null);
-    res.json({ msg: "autenticado correctamente", user: jsonUser, error: false });
+    res.json({ message: "autenticado correctamente", user: jsonUser, error: false });
   })(req, res, next);
 });
 
@@ -31,12 +31,12 @@ route.get(
   '/google/callback',
   passport.authenticate('google', {authInfo: true}),
   (req, res, next) => {
-    if (req.info && !req.user) return res.json({ msg: req.info.message, error: true })
+    if (req.info && !req.user) return res.json({ message: req.info.message, error: true })
 
     const user = req.user.toJSON();
     delete user.credentials
     req.login(req.user, (err) => err ? next(err) : null);
-    res.json({ msg: "test", user });
+    res.json({ message: "test", user });
   }
 );
 

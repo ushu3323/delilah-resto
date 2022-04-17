@@ -24,7 +24,7 @@ async function getOrders(req, res, next) {
 async function addOrder(req, res, next) {
   try {
     const order = await orderRepository.create(req.orderBody, req.user, orderStatuses.NUEVO);
-    res.status(201).json({ msg: "Orden creada correctamente", error: false, new: order });
+    res.status(201).json({ message: "Orden creada correctamente", error: false, new: order });
   } catch (error) {
     next(error);
   }
@@ -33,7 +33,7 @@ async function addOrder(req, res, next) {
 async function editOrder(req, res, next) {
   try {
     const result = await orderRepository.edit(req.order, req.orderBody);
-    res.status(200).json({ msg: "Pedido editado correctamente", error: false });
+    res.status(200).json({ message: "Pedido editado correctamente", error: false });
   } catch (error) {
     next(error);
   }
@@ -46,7 +46,7 @@ async function editOrderStatus(req, res, next) {
   req.order.status = newStatus;
   try {
     await req.order.save();
-    res.status(200).json({ msg: "El estado del pedido ha sido cambiado correctamente", error: false, old, new: newStatus });
+    res.status(200).json({ message: "El estado del pedido ha sido cambiado correctamente", error: false, old, new: newStatus });
   } catch (error) {
     next(error);
   }

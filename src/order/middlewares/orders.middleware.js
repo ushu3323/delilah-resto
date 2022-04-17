@@ -8,12 +8,12 @@ async function orderExists(req, res, next) {
   if (isNaN(orderId)) {
     return res
       .status(422)
-      .json({ msg: "El numero de orden es invalido", error: true });
+      .json({ message: "El numero de orden es invalido", error: true });
   }
 
   try {
     const order = await orderRepository.get.byId(orderId, false);
-    if (!order) return res.status(404).json({ msg: `La orden con id ${orderId} no existe`, error: true});
+    if (!order) return res.status(404).json({ message: `La orden con id ${orderId} no existe`, error: true});
     req.order = order;
     next();
   } catch (error) {
@@ -28,23 +28,23 @@ async function validateOrderBody(req, res, next) {
     !(typeof products === "object" && Array.isArray(products)) ||
     typeof paymentMethodId !== "number"
   ) {
-    res.status(422).json({ msg: "Los campos son invalidos", error: true });
+    res.status(422).json({ message: "Los campos son invalidos", error: true });
     return;
   }
   const payMethod = await paymentMethodRepository.get.byId(paymentMethodId);
   if (!payMethod || !payMethod.enabled) {
-    return res.status(422).json({ msg: "El metodo de pago no existe", error: true });
+    return res.status(422).json({ message: "El metodo de pago no existe", error: true });
   }
 
   // Validates if every object in the products array contains the required parameters (name, amount)
   for (let product of products) {
     const { id, amount } = product;
     if (!(id && amount)) {
-      res.status(422).json({ msg: "Los productos son invalidos", error: true });
+      res.status(422).json({ message: "Los productos son invalidos", error: true });
       return;
     }
     if (typeof id !== "number" && typeof amount !== "number") {
-      res.status(422).json({ msg: "Los productos son invalidos", error: true });
+      res.status(422).json({ message: "Los productos son invalidos", error: true });
       return;
     }
 
@@ -62,7 +62,7 @@ function validateOrderStatus(req, res, next) {
   const orderStatus = req.body.status;
 
   if (!orderStatus) {
-    res.status(422).json({ msg: "Los campos son invalidos", error: true });
+    res.status(422).json({ message: "Los campos son invalidos", error: true });
     return;
   }
   
@@ -73,7 +73,7 @@ function validateOrderStatus(req, res, next) {
     }
   }
 
-  res.status(422).json({ msg: "El estado ingresado es invalido", error: true });
+  res.status(422).json({ message: "El estado ingresado es invalido", error: true });
 }
 
 function isOrderOwner(req, res, next) {

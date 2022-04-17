@@ -12,7 +12,7 @@ async function getPaymentMethods(req, res, next) {
 async function addPaymentMethod(req, res, next) {
   try {
     const paymentMethod = await paymentMethodRepository.create(req.payMethod);
-    res.status(201).json({ msg: "creado correctamente", error: false, paymentMethod });
+    res.status(201).json({ message: "creado correctamente", error: false, paymentMethod });
   } catch (err) {
     next(err);
   }
@@ -38,7 +38,7 @@ async function editPaymentMethod(req, res, next) {
 async function deletePaymentMethod(req, res, next) {
   try {
     await paymentMethodRepository.del.byId(req.payMethod.id);
-    res.status(200).json({ msg: "El mensaje ha sido eliminado correctamente" });
+    res.status(200).json({ message: "El mensaje ha sido eliminado correctamente" });
   } catch (err) {
     next(err);
   }
