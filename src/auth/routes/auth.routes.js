@@ -36,7 +36,7 @@ route.get(
     const user = req.user.toJSON();
     delete user.credentials
     req.login(req.user, (err) => err ? next(err) : null);
-    res.json({ message: "test", user });
+    res.json({ message: "autenticado correctamente", user });
   }
 );
 
