@@ -21,12 +21,6 @@ app.use(cookie_session({
 app.use(passport.initialize(), passport.session());
 app.use(morgan('dev'));
 
-// Error handler
-app.use((error, req, res, next) => {
-    console.log(error);
-    res.status(500).json({ msg: "Ha ocurrido un error interno", error: true });
-})
-
 // Routes
 app.use("/auth", require("./src/auth/routes/auth.routes"));
 app.use("/users", require("./src/user/routes/users.routes"));
@@ -35,6 +29,12 @@ app.use("/products", require("./src/product/routes/products.routes"));
 app.use("/paymentmethods", require("./src/paymentMethod/routes/paymentMethod.routes"));
 
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+// Error handler
+app.use((error, req, res, next) => {
+    console.log(error);
+    res.status(500).json({ message: "Ha ocurrido un error interno", error: true, errorDetails: error.errorDetails});
+})
 
 // Homepage
 app.get("/", (req,res) =>{
@@ -45,7 +45,7 @@ app.get("/", (req,res) =>{
 });
 app.use((req,res,next) => {
     if (res.writableEnded) return
-    res.status(404).json({ msg: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
+    res.status(404).json({ message: `No se ha encontrado una ruta con nombre '${req.url}'`, error: true });
 });
 
 app.listen(config.server.port, () => {

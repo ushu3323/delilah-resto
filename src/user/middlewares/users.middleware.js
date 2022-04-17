@@ -50,18 +50,18 @@ async function validateRegister(req, res, next) {
     if (findResult)
       return res
         .status(422)
-        .json({ msg: "El nombre de usuario ya esta en uso", error: true });
+        .json({ message: "El nombre de usuario ya esta en uso", error: true });
 
     // Comprueba si el mail ya esta registrado
     findResult = await userRepository.get.byEmail(email);
     if (findResult)
       return res
         .status(422)
-        .json({ msg: "El email ingresado ya esta en uso", error: true });
+        .json({ message: "El email ingresado ya esta en uso", error: true });
 
     next(); // Todo correcto, se procede a registrar el usuario
   } else {
-    res.status(422).json({ msg: "Registro invalido", error: true });
+    res.status(422).json({ message: "Registro invalido", error: true });
   }
 }
 
@@ -72,12 +72,12 @@ async function validateEnabled(req, res, next) {
   const userID = parseInt(_userID);
   let user;
 
-  if (isNaN(userID)) return res.status(422).json({ msg: "la id es invalida", error: true });
-  if (typeof enabled !== "boolean") return res.status(422).json({ msg: "los campos son invalidos" });
+  if (isNaN(userID)) return res.status(422).json({ message: "la id es invalida", error: true });
+  if (typeof enabled !== "boolean") return res.status(422).json({ message: "los campos son invalidos" });
 
   try {
     user = await userRepository.get.byId(userID);
-    if (!user) return res.status(404).json({ msg: `Usuario no encontrado`, error: true });
+    if (!user) return res.status(404).json({ message: `Usuario no encontrado`, error: true });
   } catch (error) {
     return next(error);
   }
@@ -99,7 +99,7 @@ async function isAdmin(req, res, next) {
 
 function isAuthenticated(req, res, next) {
   if (req.user) return next()
-  res.status(401).json({ msg: "No se encuentra autenticado", user: req.user});
+  res.status(401).json({ message: "No se encuentra autenticado", user: req.user});
 }
 
 function isAdminMiddle(adminMiddleware, userMiddleware) {
