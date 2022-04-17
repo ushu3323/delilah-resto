@@ -11,4 +11,8 @@ PaymentMethod.init({
     defaultValue: false,
   }
 }, {sequelize, modelName: 'payment_method'});
+
 module.exports = PaymentMethod;
+
+const Order = require('../../order/model/Order');
+PaymentMethod.hasMany(Order);

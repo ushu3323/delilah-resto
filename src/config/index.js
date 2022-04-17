@@ -17,6 +17,7 @@ module.exports = {
   },
   server: {
     port: env.getNumber("NODE_PORT", 3000),
+    enviroment: env.getString('NODE_ENV', 'development')
   },
   admin: {
     email: env.getString("ADMIN_EMAIL", "admin@test.com"),
@@ -37,6 +38,14 @@ module.exports = {
     cookie: {
       age: env.getNumber("SESSION_COOKIE_AGE", 24 * 60 * 60 * 1000),
       secure: env.getBoolean("SESSION_COOKIE_SECURE", false),
+    }
+  },
+  services: {
+    paypal: {
+      client_id: env.getString('PAYPAL_CLIENT_ID', null),
+      client_secret: env.getString('PAYPAL_CLIENT_SECRET', null),
+      return_callback_url: env.getString('PAYPAL_CALLBACK_RETURN_URL'),
+      cancel_callback_url: env.getString('PAYPAL_CALLBACK_CANCEL_URL')
     }
   }
 };
