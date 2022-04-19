@@ -10,6 +10,53 @@ servers:
     description: Servidor publico
 
 paths:
+  /auth/local:
+    post:
+      tags:
+        - Autorización
+      summary: Autorizar con email y contraseña
+      description: Autoriza de manera local utilizando un email y contraseña de un usuario previamente registrado (sin utilizar IdP)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Se han comprobado las credenciales y son correctas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Autenticado correctamente!"
+                  error:
+                    type: boolean
+                    example: false
+        '401':
+          description: El usuario y/o la contraseña son incorrectas, compruebe bien los valores enviados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario y/o contraseña incorrectas"
+                  error:
+                    type: boolean
+                    example: true
   /users:
     get:
       tags:
