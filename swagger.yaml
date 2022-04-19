@@ -10,7 +10,7 @@ servers:
     description: Servidor publico
 
 paths:
-  /auth/local:
+  /auth/local/login:
     post:
       tags:
         - Autorización
