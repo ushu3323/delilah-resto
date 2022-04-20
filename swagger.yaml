@@ -31,7 +31,7 @@ paths:
                   type: string
                   format: password
       responses:
-        '200':
+        "200":
           description: Se han comprobado las credenciales y son correctas
           content:
             application/json:
@@ -44,7 +44,7 @@ paths:
                   error:
                     type: boolean
                     example: false
-        '401':
+        "401":
           description: El usuario y/o la contraseña son incorrectas, compruebe bien los valores enviados
           content:
             application/json:
@@ -66,17 +66,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '403':
+                  $ref: "#/components/schemas/User"
+        "403":
           description: No esta autorizado
-        '401':
+        "401":
           description: No esta autenticado
     post:
       tags:
@@ -87,14 +87,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New User'
+              $ref: "#/components/schemas/New User"
 
       responses:
-        '201':
+        "201":
           description: Usuario creado correctamente
-        '422':
+        "422":
           description: Datos invalidos
-  
+
   /users/login:
     post:
       tags:
@@ -105,9 +105,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: "#/components/schemas/Login"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -116,7 +116,7 @@ paths:
                 properties:
                   token:
                     type: string
-        '404':
+        "404":
           description: El usuario no existe
 
   /users/{userID}:
@@ -142,11 +142,10 @@ paths:
                 enabled:
                   type: boolean
 
-
       responses:
-        '200':
+        "200":
           description: OK
-        '403':
+        "403":
           description: No esta autorizado
 
   /orders:
@@ -158,28 +157,28 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: 
+                items:
                   allOf:
-                    - $ref: '#/components/schemas/Order'
+                    - $ref: "#/components/schemas/Order"
                     - type: object
                       properties:
                         products:
                           type: array
                           items:
                             allOf:
-                            - $ref: '#/components/schemas/Product'
-                            - type: object
-                              properties:
-                                amount:
-                                  type: integer
+                              - $ref: "#/components/schemas/Product"
+                              - type: object
+                                properties:
+                                  amount:
+                                    type: integer
 
-        '403':
+        "403":
           description: No esta autorizado
     post:
       tags:
@@ -187,16 +186,16 @@ paths:
       summary: Realizar un pedido
       description: Realiza un pedido, indicando las ids de los productos a pedir y del metodo de pago
       security:
-      - bearerAuth: []
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Order'
+              $ref: "#/components/schemas/New Order"
       responses:
-        '201':
+        "201":
           description: Pedido creado correctamente
-  
+
   /orders/{orderID}:
     put:
       tags:
@@ -215,17 +214,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Order'
+              $ref: "#/components/schemas/New Order"
 
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
-        '404':
-          description: La orden con la id especificada, no existe      
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: La orden con la id especificada, no existe
     patch:
       tags:
         - Pedidos
@@ -253,13 +252,13 @@ paths:
                     - "enviando"
                     - "entregado"
                     - "cancelado"
-      
+
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "404":
           description: La orden con la id especificada, no existe
-  
+
   /products:
     get:
       tags:
@@ -269,14 +268,14 @@ paths:
       summary: Todos los Productos
       description: Muestra todos los productos
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Product'
+                  $ref: "#/components/schemas/Product"
     post:
       tags:
         - Productos
@@ -288,11 +287,11 @@ paths:
         content:
           application/json:
             schema:
-             $ref: '#/components/schemas/New Product'
+              $ref: "#/components/schemas/New Product"
       responses:
-        '201': 
+        "201":
           description: Created
-        '403':
+        "403":
           description: No esta autorizado
 
   /products/{productID}:
@@ -301,8 +300,8 @@ paths:
         - Productos
       security:
         - bearerAuth: []
-      summary: Modificar producto 
-      description: Modifica los datos de un producto existente 
+      summary: Modificar producto
+      description: Modifica los datos de un producto existente
       parameters:
         - in: path
           name: productID
@@ -313,13 +312,13 @@ paths:
         content:
           application/json:
             schema:
-             $ref: '#/components/schemas/New Product'
+              $ref: "#/components/schemas/New Product"
       responses:
-        '201': 
+        "201":
           description: Created
-        '404':
+        "404":
           description: El producto no existe
-        '403':
+        "403":
           description: No esta autorizado
     patch:
       tags:
@@ -343,11 +342,11 @@ paths:
                 enabled:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "404":
           description: El producto no existe
-        '403':
+        "403":
           description: No esta autorizado
     delete:
       tags:
@@ -363,11 +362,11 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "404":
           description: El producto no existe
-        '403':
+        "403":
           description: No esta autorizado
 
   /paymentmethods:
@@ -379,14 +378,14 @@ paths:
       summary: Todos los metodos de pago
       description: Devuelve todos los metodos de pago existentes
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Payment method'
+                  $ref: "#/components/schemas/Payment method"
     post:
       tags:
         - Metodos de pago
@@ -398,17 +397,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Payment method'
+              $ref: "#/components/schemas/New Payment method"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment method'
-        '403':
+                $ref: "#/components/schemas/Payment method"
+        "403":
           description: No esta autorizado
-  
+
   /paymentmethods/{paymentMethodID}:
     patch:
       tags:
@@ -427,21 +426,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Payment method'
+              $ref: "#/components/schemas/New Payment method"
 
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment method'
-        '404':
+                $ref: "#/components/schemas/Payment method"
+        "404":
           description: El metodo de pago no existe
-        '403':
+        "403":
           description: No esta autorizado
     delete:
-      tags: 
+      tags:
         - Metodos de pago
       security:
         - bearerAuth: []
@@ -454,13 +453,13 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "404":
           description: El metodo de pago no existe
-        '403':
+        "403":
           description: No esta autorizado
-                
+
 components:
   securitySchemes:
     bearerAuth:
@@ -537,7 +536,7 @@ components:
           description: id del pedido
         createdAt:
           type: string
-          example: '2021-11-23T22:27:21.000Z'
+          example: "2021-11-23T22:27:21.000Z"
           description: Hora en que se realizo el pedido
         state:
           type: string
@@ -550,9 +549,9 @@ components:
         products:
           type: array
           items:
-            $ref: '#/components/schemas/Product'
+            $ref: "#/components/schemas/Product"
         paymentMethod:
-          $ref: '#/components/schemas/Payment method'
+          $ref: "#/components/schemas/Payment method"
     New Order:
       type: object
       properties:
@@ -567,8 +566,8 @@ components:
               amount:
                 type: integer
           example:
-            - {"id": 1, "amount": 3}
-            - {"id": 2, "amount": 2}
+            - { "id": 1, "amount": 3 }
+            - { "id": 2, "amount": 2 }
         paymentMethodId:
           type: integer
           example: 1
