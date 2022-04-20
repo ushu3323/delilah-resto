@@ -76,6 +76,8 @@ paths:
                   $ref: '#/components/schemas/User'
         '403':
           description: No esta autorizado
+        '401':
+          description: No esta autenticado
     post:
       tags:
         - Usuario
@@ -498,13 +500,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-        # password:
-        #   type: string
-        #   example: "123456"
-        # pedidos:
-        #   type: array
-        #   items:
-        #     $ref: "#/components/schemas/Pedido"
     New User:
       properties:
         username:
@@ -545,7 +540,6 @@ components:
           format: int32
         createdAt:
           type: string
-          # pattern: '^([0-1][0-9]|2[0-3])(:)([0-5][0-9])$'
           example: '2021-11-23T22:27:21.000Z'
           description: Hora en que se realizo el pedido
         state:
@@ -558,7 +552,6 @@ components:
             - "cancelado"
         products:
           type: array
-          # description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
           items:
             $ref: '#/components/schemas/Product'
         paymentMethod:
@@ -579,11 +572,9 @@ components:
           example:
             - {"id": 1, "amount": 3}
             - {"id": 2, "amount": 2}
-            # $ref: '#/components/schemas/Dish'
         paymentMethodId:
           type: integer
           example: 1
-          # $ref: '#/components/schemas/Payment method'
     Product:
       type: object
       properties:
