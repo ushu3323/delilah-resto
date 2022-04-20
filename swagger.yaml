@@ -535,9 +535,6 @@ components:
           type: integer
           format: int32
           description: id del pedido
-        idUser:
-          type: integer
-          format: int32
         createdAt:
           type: string
           example: '2021-11-23T22:27:21.000Z'
