@@ -223,7 +223,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/New Order'
+                $ref: '#/components/schemas/Order'
         '404':
           description: La orden con la id especificada, no existe      
     patch:
