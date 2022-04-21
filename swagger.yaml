@@ -74,10 +74,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
-        "403":
-          description: No esta autorizado
         "401":
-          description: No esta autenticado
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
     post:
       tags:
         - Usuario
@@ -92,6 +92,8 @@ paths:
       responses:
         "201":
           description: Usuario creado correctamente
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
         "422":
           description: Datos invalidos
 
@@ -121,8 +123,10 @@ paths:
       responses:
         "200":
           description: OK
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
         "403":
-          description: No esta autorizado
+          $ref: "#/components/schemas/AuthorizationError"
 
   /orders:
     get:
@@ -153,9 +157,9 @@ paths:
                                 properties:
                                   amount:
                                     type: integer
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
 
-        "403":
-          description: No esta autorizado
     post:
       tags:
         - Pedidos
@@ -171,6 +175,8 @@ paths:
       responses:
         "201":
           description: Pedido creado correctamente
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
 
   /orders/{orderID}:
     put:
@@ -199,6 +205,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Order"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
         "404":
           description: La orden con la id especificada, no existe
     patch:
@@ -232,6 +240,10 @@ paths:
       responses:
         "200":
           description: OK
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "422":
+          description: El pedido ya esta confirmado o el estado es invalido
         "404":
           description: La orden con la id especificada, no existe
 
@@ -252,6 +264,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+
     post:
       tags:
         - Productos
@@ -266,9 +281,11 @@ paths:
               $ref: "#/components/schemas/New Product"
       responses:
         "201":
-          description: Created
+          description: Creado correctamente
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
         "403":
-          description: No esta autorizado
+          $ref: "#/components/schemas/AuthorizationError"
 
   /products/{productID}:
     put:
@@ -292,10 +309,13 @@ paths:
       responses:
         "201":
           description: Created
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
         "404":
           description: El producto no existe
-        "403":
-          description: No esta autorizado
+
     patch:
       tags:
         - Productos
@@ -320,10 +340,13 @@ paths:
       responses:
         "200":
           description: OK
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
         "404":
           description: El producto no existe
-        "403":
-          description: No esta autorizado
+
     delete:
       tags:
         - Productos
@@ -340,10 +363,12 @@ paths:
       responses:
         "200":
           description: OK
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
         "404":
           description: El producto no existe
-        "403":
-          description: No esta autorizado
 
   /paymentmethods:
     get:
@@ -362,6 +387,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+
     post:
       tags:
         - Metodos de pago
@@ -381,8 +409,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
         "403":
-          description: No esta autorizado
+          $ref: "#/components/schemas/AuthorizationError"
 
   /paymentmethods/{paymentMethodID}:
     patch:
@@ -411,10 +441,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
         "404":
           description: El metodo de pago no existe
-        "403":
-          description: No esta autorizado
+
     delete:
       tags:
         - Metodos de pago
@@ -431,10 +464,12 @@ paths:
       responses:
         "200":
           description: OK
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
         "404":
           description: El metodo de pago no existe
-        "403":
-          description: No esta autorizado
 
 components:
   securitySchemes:
@@ -603,3 +638,7 @@ components:
           example: "Contado"
         enabled:
           type: boolean
+    AuthorizationError:
+      description: No tiene permisos para realizar esta acción
+    AuthenticationError:
+      description: No se encuentra autenticado
