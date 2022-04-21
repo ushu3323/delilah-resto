@@ -14,8 +14,8 @@ paths:
     post:
       tags:
         - Autenticación
-      summary: Autorizar con email y contraseña
-      description: Autoriza de manera local utilizando un email y contraseña de un usuario previamente registrado (sin utilizar IdP)
+      summary: Autenticar con email y contraseña
+      description: Autentica de manera local utilizando un email y contraseña de un usuario previamente registrado (sin utilizar IdP)
       security:
         - bearerAuth: []
       requestBody:
