@@ -260,6 +260,24 @@ paths:
         "404":
           description: La orden con la id especificada, no existe
 
+  /orders/{orderID}/checkout:
+    get:
+      tags:
+        - Pedidos
+      summary: Confirmar pedido
+      description: Realiza el pago del pedido para confirmarlo, se utiliza Paypal como metodo de pago
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "301":
+          description: Redirige a la pagina de consentimiento de google
+
   /products:
     get:
       tags:
