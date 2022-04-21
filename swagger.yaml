@@ -95,30 +95,6 @@ paths:
         "422":
           description: Datos invalidos
 
-  /users/login:
-    post:
-      tags:
-        - Usuario
-      summary: Iniciar sesion
-      description: Inicia sesión con un mail y contraseña, devuelve un token de autenticación
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Login"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-        "404":
-          description: El usuario no existe
-
   /users/{userID}:
     patch:
       tags:
