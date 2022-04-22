@@ -12,9 +12,15 @@ async function getOrders(req, res, next) {
     } else {
       console.log("Getting orders of:", req.user.email);
       const userOrders = await orderRepository.get.byUserId(req.user.id);
+      const jsonOrders = userOrders.map((order) => {
+        let o = order.toJSON()
+        delete o.userId
+        delete o.paymentMethodId
+        return o
+      })
       res
         .status(200)
-        .json(userOrders);
+        .json(jsonOrders);
     }
   } catch (error) {
     next(error);
