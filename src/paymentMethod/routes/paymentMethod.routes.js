@@ -7,17 +7,18 @@ const {
   editPaymentMethod,
 } = require('../controllers/paymentMethod.controller');
 const { paymentExist, validateNewPaymentMethod, validateEditPaymentMethod } = require('../middlewares/paymentMethod.middleware');
-const { authenticate, authAdmin} = require('../../user/middlewares/users.middleware')
+const { isAuthenticated, isAdmin} = require('../../user/middlewares/users.middleware')
 
+route.use(isAuthenticated);
 
-route.get('/', authenticate, getPaymentMethods);
+route.get('/', getPaymentMethods);
 
 // route.get('/:id', authenticate, getPaymentMethod);
 
-route.post('/', authAdmin, validateNewPaymentMethod, addPaymentMethod);
+route.post('/', isAdmin, validateNewPaymentMethod, addPaymentMethod);
 
-route.patch('/:id', authAdmin, paymentExist, validateEditPaymentMethod, editPaymentMethod)
+route.patch('/:id', isAdmin, paymentExist, validateEditPaymentMethod, editPaymentMethod)
 
-route.delete('/:id', authAdmin, paymentExist, deletePaymentMethod);
+route.delete('/:id', isAdmin, paymentExist, deletePaymentMethod);
 
 module.exports = route;

@@ -2,18 +2,18 @@ const productRepository = require("../repositories/product.repository");
 
 async function setProductEnabled(req, res) {
   if (req.product.enabled === req.body.enabled) {
-    res.status(200).json({ msg: `El producto ya estaba dado de ${product.enabled ? 'alta' : 'baja'}` })
+    res.status(200).json({ message: `El producto ya estaba dado de ${product.enabled ? 'alta' : 'baja'}` })
   } else {
     req.product.enabled = req.body.enabled;
     req.product.save();
-    res.status(200).json({ msg: `Se ha dado de ${req.product.enabled ? 'alta' : 'baja'} el producto` })
+    res.status(200).json({ message: `Se ha dado de ${req.product.enabled ? 'alta' : 'baja'} el producto` })
   }
 }
 
 async function addNewProduct(req, res) {
   try {
     await productRepository.create(req.newProduct);
-    res.status(201).json({ msg: "Producto creado correctamente", error: false });
+    res.status(201).json({ message: "Producto creado correctamente", error: false });
   } catch (error) {
     next(error);
   }
@@ -25,7 +25,7 @@ async function editProduct(req, res, next) {
   try {
     req.product.set({ name, price, category, enabled })
     await req.product.save();
-    res.status(200).json({ msg: "Producto modificado correctamente", error: false });
+    res.status(200).json({ message: "Producto modificado correctamente", error: false });
   } catch (error) {
     next(error);
   }
@@ -34,7 +34,7 @@ async function editProduct(req, res, next) {
 async function deleteProduct(req, res, next) {
   try {
     await req.product.destroy();
-    res.status(200).json({ msg: "Se ha eliminado correctamente", product: req.product, error: false });
+    res.status(200).json({ message: "Se ha eliminado correctamente", product: req.product, error: false });
   } catch (error) {
     next(error);
   }

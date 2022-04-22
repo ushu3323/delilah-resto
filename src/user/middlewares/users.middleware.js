@@ -50,29 +50,19 @@ async function validateRegister(req, res, next) {
     if (findResult)
       return res
         .status(422)
-        .json({ msg: "El nombre de usuario ya esta en uso", error: true });
+        .json({ message: "El nombre de usuario ya esta en uso", error: true });
 
     // Comprueba si el mail ya esta registrado
     findResult = await userRepository.get.byEmail(email);
     if (findResult)
       return res
         .status(422)
-        .json({ msg: "El email ingresado ya esta en uso", error: true });
+        .json({ message: "El email ingresado ya esta en uso", error: true });
 
     next(); // Todo correcto, se procede a registrar el usuario
   } else {
-    res.status(422).json({ msg: "Registro invalido", error: true });
+    res.status(422).json({ message: "Registro invalido", error: true });
   }
-}
-
-function isLoginFieldsValid(loginBody) {
-  const { email, password } = loginBody;
-  return (
-    typeof email === "string" &&
-    typeof password === "string" &&
-    email !== "" &&
-    password !== ""
-  );
 }
 
 async function validateEnabled(req, res, next) {
@@ -82,84 +72,17 @@ async function validateEnabled(req, res, next) {
   const userID = parseInt(_userID);
   let user;
 
-  if(isNaN(userID)) return res.status(422).json({msg: "la id es invalida", error: true});
-  if (typeof enabled !== "boolean") return res.status(422).json({msg: "los campos son invalidos"});
+  if (isNaN(userID)) return res.status(422).json({ message: "la id es invalida", error: true });
+  if (typeof enabled !== "boolean") return res.status(422).json({ message: "los campos son invalidos" });
 
   try {
     user = await userRepository.get.byId(userID);
-    if(!user) return res.status(404).json({msg: `Usuario no encontrado`, error: true });
+    if (!user) return res.status(404).json({ message: `Usuario no encontrado`, error: true });
   } catch (error) {
     return next(error);
   }
 
   req.user = user;
-  next();
-}
-
-async function validateLogin(req, res, next) {
-  if (!isLoginFieldsValid(req.body))
-    return res.status(422).json({ msg: "Los campos son invalidos", error: true });
-
-  const { email, password } = req.body;
-  user = await userRepository.get.byEmail(email);
-
-  if (!user?.password || sha256(password) !== user.password) {
-    return res.status(422).json({ msg: "Credenciales invalidas", error: true });
-  }
-  
-  if (!user.enabled) return res.status(403).json({ msg: "El usuario esta deshabilitado", error: true })
-  
-  req.user = user;
-  return next();
-}
-
-/**
- * @deprecated this will no longer work due to security reasons, instead use jwtValidation middleware and implement jwt in every controller
- */
-function idHeaderValidation(req, res, next) {
-  if (!req.header("userID")) {
-    res.status(422).json({ msg: "Se esperaba userID en header", error: true });
-    return;
-  }
-
-  const userID = parseInt(req.header("userID"));
-  const user = userRepository.get.byId(userID);
-  if (isNaN(userID) && !user) {
-    res.status(422).json({ msg: "userID no es valido", error: true });
-    return;
-  }
-  next();
-}
-
-function jwtDecode(token) {
-  try {
-    const decoded = jwt.verify(token, config.server.key);
-    return decoded;
-  } catch (error) {
-    console.log("JWT Error:", error.message);
-  }
-}
-
-async function authenticate(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  let user;
-  if (!token) return res.status(401).json({ msg: "No se encontro un token", error: true });
-  
-  const jwtDecoded = jwtDecode(token);
-  if(!jwtDecoded) return res.status(401).json({ msg: "Token invalido", error: true });
-
-  try {
-    user = await userRepository.get.byEmail(jwtDecoded.email);
-    if (!user) return res.status(401).json({ msg: "Usuario no encontrado", error: true });
-  } catch (error) {
-    console.log("JWT Error:", error.message);
-    return next(error);
-  }
-
-  if(!user.enabled) return res.status(403).json({msg: "El usuario esta deshabilitado", error: true})
-
-  req.jwtUser = jwtDecoded;
-  req.user = user
   next();
 }
 
@@ -174,9 +97,11 @@ async function isAdmin(req, res, next) {
   }
 }
 
-/**
- * @deprecated this will no longer work due to security reasons, instead implement jwt in every route
- */
+function isAuthenticated(req, res, next) {
+  if (req.user) return next()
+  res.status(401).json({ message: "No se encuentra autenticado", user: req.user});
+}
+
 function isAdminMiddle(adminMiddleware, userMiddleware) {
   return async (req, res, next) => {
     if (req.user.isAdmin) adminMiddleware(req, res, next);
@@ -187,10 +112,7 @@ function isAdminMiddle(adminMiddleware, userMiddleware) {
 module.exports = {
   validateRegister,
   validateEnabled,
-  validateLogin,
-  authenticate,
-  idHeaderValidation,
   isAdminMiddle,
+  isAuthenticated,
   isAdmin,
-  authAdmin: [authenticate, isAdmin],
 };

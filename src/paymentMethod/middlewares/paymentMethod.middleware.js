@@ -5,14 +5,14 @@ async function paymentExist(req, res, next) {
   const id = parseInt(_id);
 
   if (isNaN(id))
-    return res.status(422).json({ msg: "Id invalida", error: true });
+    return res.status(422).json({ message: "Id invalida", error: true });
 
   try {
     const paymentMethod = await paymentMethodRepository.get.byId(id);
     if (!paymentMethod)
       return res
         .status(404)
-        .json({ msg: "Metodo de pago no encontrado", error: true });
+        .json({ message: "Metodo de pago no encontrado", error: true });
 
     req.params.id = id;
     req.payMethod = paymentMethod;
@@ -27,7 +27,7 @@ async function validateNewPaymentMethod(req, res, next) {
   const { name, enabled } = req.body;
 
   if (typeof name !== "string" || typeof enabled !== "boolean")
-    return res.status(422).json({ msg: "Campos invalidos", error: true });
+    return res.status(422).json({ message: "Campos invalidos", error: true });
 
   req.payMethod = { name, enabled };
   next();
@@ -40,7 +40,7 @@ async function validateEditPaymentMethod(req, res, next) {
     (name && typeof name !== "string") ||
     (enabled && typeof enabled !== "boolean")
   )
-    return res.status(422).json({ msg: "Campos invalidos", error: true });
+    return res.status(422).json({ message: "Campos invalidos", error: true });
 
   try {
     // console.log("old:", req.payMethod.name, req.payMethod.enabled);

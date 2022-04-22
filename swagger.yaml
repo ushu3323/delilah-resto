@@ -1,15 +1,85 @@
 openapi: 3.0.0
 info:
   title: Delilah Restó
-  version: 2.0.0
+  version: 4.0.0
   description: Servicio de gestion de pedidos de un restaurante
 servers:
   - url: http://localhost:5000
     description: Servidor de desarrollo
-  - url: https://delilah-api-mip.tk/api
+  - url: https://delilah-api-mip.ml/api
     description: Servidor publico
 
 paths:
+  /auth/local/login:
+    post:
+      tags:
+        - Autenticación
+      summary: Autenticar con email y contraseña
+      description: Autentica de manera local utilizando un email y contraseña de un usuario previamente registrado (sin utilizar IdP)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Se han comprobado correctamente las credenciales
+          headers:
+            Set-Cookie:
+              description: Sesion del usuario
+              schema:
+                type: string
+                example: session=abcdef123456; path=/; expires=Fri, 30 Dec 2020 00:00:00 GMT; httponly
+            "\0Set-Cookie":
+              description: Firma de la cookie de sesion
+              schema:
+                type: string
+                example: session.sig=ghijk78910; path=/; expires=Fri, 30 Dec 2020 00:00:00 GMT; httponly
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Autenticado correctamente!"
+                  error:
+                    type: boolean
+                    example: false
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: El usuario y/o la contraseña son incorrectas, compruebe bien los valores enviados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario y/o contraseña incorrectas"
+                  error:
+                    type: boolean
+                    example: true
+
+  /auth/google/login:
+    get:
+      tags:
+        - Autenticación
+      summary: Autenticar con google
+      description: Utiliza google como provedor de identidad, redirige a la pagina de consentimiento de Google o autentica directamente con el ultimo usuario utilizado (si es que hay solo 1 usuario logueado en Google)
+      responses:
+        "301":
+          description: Redirige a la pagina de consentimiento de google
+
   /users:
     get:
       tags:
@@ -17,18 +87,21 @@ paths:
       summary: Todos los usuarios
       description: Devuelve una lista con todos los usuarios registrados y sus respectivos datos, Solo los administradores pueden verlo
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '403':
-          description: No esta autorizado
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
     post:
       tags:
         - Usuario
@@ -38,37 +111,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New User'
+              $ref: "#/components/schemas/New User"
 
       responses:
-        '201':
+        "201":
           description: Usuario creado correctamente
-        '422':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "422":
           description: Datos invalidos
-  
-  /users/login:
-    post:
+
+  /users/me:
+    get:
       tags:
         - Usuario
-      summary: Iniciar sesion
-      description: Inicia sesión con un mail y contraseña, devuelve un token de autenticación
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login'
+      summary: Obtener usuario de sesion activa
+      description: Obtiene informacion acerca del usuario de la sesion activa
+      security:
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-        '404':
-          description: El usuario no existe
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
 
   /users/{userID}:
     patch:
@@ -77,7 +149,8 @@ paths:
       summary: Habilitar/Deshabilitar un usuario
       description: Habilitar un usuario, solo los administradores pueden hacerlo
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       parameters:
         - in: path
           name: userID
@@ -93,12 +166,13 @@ paths:
                 enabled:
                   type: boolean
 
-
       responses:
-        '200':
+        "200":
           description: OK
-        '403':
-          description: No esta autorizado
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
 
   /orders:
     get:
@@ -107,53 +181,58 @@ paths:
       summary: Todos los pedidos
       description: Devuelve una lista de los pedidos realizados por el usuario. En cambio, si el usuario es administrador obtendra un listado de TODOS los pedidos realizados
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                items: 
+                items:
                   allOf:
-                    - $ref: '#/components/schemas/Order'
+                    - $ref: "#/components/schemas/Order"
                     - type: object
                       properties:
                         products:
                           type: array
                           items:
                             allOf:
-                            - $ref: '#/components/schemas/Product'
-                            - type: object
-                              properties:
-                                amount:
-                                  type: integer
+                              - $ref: "#/components/schemas/Product"
+                              - type: object
+                                properties:
+                                  amount:
+                                    type: integer
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
 
-        '403':
-          description: No esta autorizado
     post:
       tags:
         - Pedidos
       summary: Realizar un pedido
       description: Realiza un pedido, indicando las ids de los productos a pedir y del metodo de pago
       security:
-      - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Order'
+              $ref: "#/components/schemas/New Order"
       responses:
-        '201':
+        "201":
           description: Pedido creado correctamente
-  
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+
   /orders/{orderID}:
     put:
       tags:
         - Pedidos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modificar pedido
       description: Modifica un pedido en especifico
       parameters:
@@ -166,22 +245,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Order'
+              $ref: "#/components/schemas/New Order"
 
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/New Order'
-        '404':
-          description: La orden con la id especificada, no existe      
+                $ref: "#/components/schemas/Order"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "404":
+          description: La orden con la id especificada, no existe
     patch:
       tags:
         - Pedidos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modifica el estado del pedido
       parameters:
         - in: path
@@ -204,56 +286,87 @@ paths:
                     - "enviando"
                     - "entregado"
                     - "cancelado"
-      
+
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "422":
+          description: El pedido ya esta confirmado o el estado es invalido
+        "404":
           description: La orden con la id especificada, no existe
-  
+
+  /orders/{orderID}/checkout:
+    get:
+      tags:
+        - Pedidos
+      summary: Confirmar pedido
+      description: Realiza el pago del pedido para confirmarlo, se utiliza Paypal como metodo de pago
+      security:
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
+      parameters:
+        - in: path
+          name: orderID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "301":
+          description: Redirige a la pagina de consentimiento de google
+
   /products:
     get:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Todos los Productos
       description: Muestra todos los productos
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Product'
+                  $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+
     post:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Añadir producto
       description: Añade un nuevo producto
       requestBody:
         content:
           application/json:
             schema:
-             $ref: '#/components/schemas/New Product'
+              $ref: "#/components/schemas/New Product"
       responses:
-        '201': 
-          description: Created
-        '403':
-          description: No esta autorizado
+        "201":
+          description: Creado correctamente
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
 
   /products/{productID}:
     put:
       tags:
         - Productos
       security:
-        - bearerAuth: []
-      summary: Modificar producto 
-      description: Modifica los datos de un producto existente 
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
+      summary: Modificar producto
+      description: Modifica los datos de un producto existente
       parameters:
         - in: path
           name: productID
@@ -264,19 +377,23 @@ paths:
         content:
           application/json:
             schema:
-             $ref: '#/components/schemas/New Product'
+              $ref: "#/components/schemas/New Product"
       responses:
-        '201': 
+        "201":
           description: Created
-        '404':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+        "404":
           description: El producto no existe
-        '403':
-          description: No esta autorizado
+
     patch:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Habilitar/Deshabilitar producto
       description: Habilita/Deshabilita un producto, esto afecta en la visibilidad del producto para los usuarios
       parameters:
@@ -294,17 +411,21 @@ paths:
                 enabled:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+        "404":
           description: El producto no existe
-        '403':
-          description: No esta autorizado
+
     delete:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Eliminar producto
       description: Elimina un producto
       parameters:
@@ -314,58 +435,68 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+        "404":
           description: El producto no existe
-        '403':
-          description: No esta autorizado
 
   /paymentmethods:
     get:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Todos los metodos de pago
       description: Devuelve todos los metodos de pago existentes
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Payment method'
+                  $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+
     post:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Añadir metodo de pago
       description: Añade un nuevo metodo de pago, solo Administradores
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Payment method'
+              $ref: "#/components/schemas/New Payment method"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment method'
-        '403':
-          description: No esta autorizado
-  
+                $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+
   /paymentmethods/{paymentMethodID}:
     patch:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modificar metodo de pago
       description: Modifica un metodo de pago existente
       parameters:
@@ -378,24 +509,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Payment method'
+              $ref: "#/components/schemas/New Payment method"
 
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment method'
-        '404':
+                $ref: "#/components/schemas/Payment method"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+        "404":
           description: El metodo de pago no existe
-        '403':
-          description: No esta autorizado
+
     delete:
-      tags: 
+      tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Eliminar metodo de pago
       description: Elimina un metodo de pago
       parameters:
@@ -405,19 +540,25 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+        "404":
           description: El metodo de pago no existe
-        '403':
-          description: No esta autorizado
-                
+
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuthSession:
+      type: apiKey
+      in: cookie
+      name: session
+    cookieAuthSessionSign:
+      type: apiKey
+      in: cookie
+      name: session.sig
   schemas:
     User:
       properties:
@@ -451,13 +592,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-        # password:
-        #   type: string
-        #   example: "123456"
-        # pedidos:
-        #   type: array
-        #   items:
-        #     $ref: "#/components/schemas/Pedido"
     New User:
       properties:
         username:
@@ -493,13 +627,9 @@ components:
           type: integer
           format: int32
           description: id del pedido
-        idUser:
-          type: integer
-          format: int32
         createdAt:
           type: string
-          # pattern: '^([0-1][0-9]|2[0-3])(:)([0-5][0-9])$'
-          example: '2021-11-23T22:27:21.000Z'
+          example: "2021-11-23T22:27:21.000Z"
           description: Hora en que se realizo el pedido
         state:
           type: string
@@ -511,11 +641,10 @@ components:
             - "cancelado"
         products:
           type: array
-          # description: ids de los platillos del pedido, (en este ejemplo, se solicito dos del platillo 1 y solo uno del platillo 2)
           items:
-            $ref: '#/components/schemas/Product'
+            $ref: "#/components/schemas/Product"
         paymentMethod:
-          $ref: '#/components/schemas/Payment method'
+          $ref: "#/components/schemas/Payment method"
     New Order:
       type: object
       properties:
@@ -530,13 +659,11 @@ components:
               amount:
                 type: integer
           example:
-            - {"id": 1, "amount": 3}
-            - {"id": 2, "amount": 2}
-            # $ref: '#/components/schemas/Dish'
+            - { "id": 1, "amount": 3 }
+            - { "id": 2, "amount": 2 }
         paymentMethodId:
           type: integer
           example: 1
-          # $ref: '#/components/schemas/Payment method'
     Product:
       type: object
       properties:
@@ -593,3 +720,7 @@ components:
           example: "Contado"
         enabled:
           type: boolean
+    AuthorizationError:
+      description: No tiene permisos para realizar esta acción
+    AuthenticationError:
+      description: No se encuentra autenticado
