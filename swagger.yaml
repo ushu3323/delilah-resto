@@ -42,6 +42,8 @@ paths:
                   error:
                     type: boolean
                     example: false
+                  user:
+                    $ref: "#/components/schemas/User"
         "401":
           description: El usuario y/o la contraseña son incorrectas, compruebe bien los valores enviados
           content:
