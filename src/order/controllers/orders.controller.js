@@ -38,8 +38,15 @@ async function addOrder(req, res, next) {
 
 async function editOrder(req, res, next) {
   try {
-    const result = await orderRepository.edit(req.order, req.orderBody);
-    res.status(200).json({ message: "Pedido editado correctamente", error: false });
+    // show order only with the new modifications
+    await orderRepository.edit(req.order, req.orderBody);
+    const jsonOrder = req.order.toJSON()
+
+    delete jsonOrder.user
+    delete jsonOrder.userId
+    delete jsonOrder.paymentMethodId
+
+    res.status(200).json({ message: "Pedido modificado correctamente", error: false, order: jsonOrder });
   } catch (error) {
     next(error);
   }
