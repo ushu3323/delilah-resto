@@ -16,8 +16,6 @@ paths:
         - Autenticación
       summary: Autenticar con email y contraseña
       description: Autentica de manera local utilizando un email y contraseña de un usuario previamente registrado (sin utilizar IdP)
-      security:
-        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -64,8 +62,6 @@ paths:
         - Autenticación
       summary: Autenticar con google
       description: Utiliza google como provedor de identidad, redirige a la pagina de consentimiento de Google o autentica directamente con el ultimo usuario utilizado (si es que hay solo 1 usuario logueado en Google)
-      security:
-        - bearerAuth: []
       responses:
         "301":
           description: Redirige a la pagina de consentimiento de google
