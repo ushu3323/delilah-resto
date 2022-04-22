@@ -121,6 +121,27 @@ paths:
         "422":
           description: Datos invalidos
 
+  /users/me:
+    get:
+      tags:
+        - Usuario
+      summary: Obtener usuario de sesion activa
+      description: Obtiene informacion acerca del usuario de la sesion activa
+      security:
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/schemas/AuthenticationError"
+        "403":
+          $ref: "#/components/schemas/AuthorizationError"
+
   /users/{userID}:
     patch:
       tags:
