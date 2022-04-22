@@ -30,7 +30,19 @@ paths:
                   format: password
       responses:
         "200":
-          description: Se han comprobado las credenciales y son correctas
+          description: Se han comprobado correctamente las credenciales
+          headers:
+            Set-Cookie:
+              description: Sesion del usuario
+              schema:
+                type: string
+                example: session=abcdef123456; path=/; expires=Fri, 30 Dec 2020 00:00:00 GMT; httponly
+            "\0Set-Cookie":
+              description: Firma de la cookie de sesion
+              schema:
+                type: string
+                example: session.sig=ghijk78910; path=/; expires=Fri, 30 Dec 2020 00:00:00 GMT; httponly
+
           content:
             application/json:
               schema:
@@ -75,7 +87,8 @@ paths:
       summary: Todos los usuarios
       description: Devuelve una lista con todos los usuarios registrados y sus respectivos datos, Solo los administradores pueden verlo
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       responses:
         "200":
           description: OK
@@ -115,7 +128,8 @@ paths:
       summary: Habilitar/Deshabilitar un usuario
       description: Habilitar un usuario, solo los administradores pueden hacerlo
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       parameters:
         - in: path
           name: userID
@@ -146,7 +160,8 @@ paths:
       summary: Todos los pedidos
       description: Devuelve una lista de los pedidos realizados por el usuario. En cambio, si el usuario es administrador obtendra un listado de TODOS los pedidos realizados
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       responses:
         "200":
           description: OK
@@ -177,7 +192,8 @@ paths:
       summary: Realizar un pedido
       description: Realiza un pedido, indicando las ids de los productos a pedir y del metodo de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       requestBody:
         content:
           application/json:
@@ -194,7 +210,8 @@ paths:
       tags:
         - Pedidos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modificar pedido
       description: Modifica un pedido en especifico
       parameters:
@@ -224,7 +241,8 @@ paths:
       tags:
         - Pedidos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modifica el estado del pedido
       parameters:
         - in: path
@@ -265,7 +283,8 @@ paths:
       summary: Confirmar pedido
       description: Realiza el pago del pedido para confirmarlo, se utiliza Paypal como metodo de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       parameters:
         - in: path
           name: orderID
@@ -281,7 +300,8 @@ paths:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Todos los Productos
       description: Muestra todos los productos
       responses:
@@ -300,7 +320,8 @@ paths:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Añadir producto
       description: Añade un nuevo producto
       requestBody:
@@ -321,7 +342,8 @@ paths:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modificar producto
       description: Modifica los datos de un producto existente
       parameters:
@@ -349,7 +371,8 @@ paths:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Habilitar/Deshabilitar producto
       description: Habilita/Deshabilita un producto, esto afecta en la visibilidad del producto para los usuarios
       parameters:
@@ -380,7 +403,8 @@ paths:
       tags:
         - Productos
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Eliminar producto
       description: Elimina un producto
       parameters:
@@ -404,7 +428,8 @@ paths:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Todos los metodos de pago
       description: Devuelve todos los metodos de pago existentes
       responses:
@@ -423,7 +448,8 @@ paths:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Añadir metodo de pago
       description: Añade un nuevo metodo de pago, solo Administradores
       requestBody:
@@ -448,7 +474,8 @@ paths:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Modificar metodo de pago
       description: Modifica un metodo de pago existente
       parameters:
@@ -481,7 +508,8 @@ paths:
       tags:
         - Metodos de pago
       security:
-        - bearerAuth: []
+        - cookieAuthSession: []
+          cookieAuthSessionSign: []
       summary: Eliminar metodo de pago
       description: Elimina un metodo de pago
       parameters:
@@ -502,10 +530,14 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuthSession:
+      type: apiKey
+      in: cookie
+      name: session
+    cookieAuthSessionSign:
+      type: apiKey
+      in: cookie
+      name: session.sig
   schemas:
     User:
       properties:
