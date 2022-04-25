@@ -13,5 +13,4 @@ COPY . .
 # nodejs port
 EXPOSE 5000:5000
 
-
-CMD [ "npm", "run", "dev" ]
+CMD ["/bin/sh", "./start_server.sh"]
