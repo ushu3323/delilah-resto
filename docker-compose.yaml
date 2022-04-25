@@ -1,0 +1,6 @@
+version: "4.0"
+services:
+  api:
+    container_name: delilah-api
+    build: .
+    network_mode: "host"
