@@ -4,3 +4,12 @@ services:
     container_name: delilah-api
     build: .
     network_mode: "host"
+  proxy:
+    container_name: delilah-proxy
+    image: nginx:1.20.2-alpine
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/config/:/etc/nginx/conf.d/
+    network_mode: "host"
+    expose:
+      - 80
