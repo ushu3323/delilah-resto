@@ -1,6 +1,6 @@
 FROM alpine
-
-RUN apk add --update nodejs npm
+# Install nodejs and clean package manager cache
+RUN apk add --no-cache nodejs npm && rm -rf /var/cache/apk
 
 WORKDIR /app
 
