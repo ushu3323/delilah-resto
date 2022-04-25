@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.15.4
 # Install nodejs and clean package manager cache
 RUN apk add --no-cache nodejs npm && rm -rf /var/cache/apk
 
