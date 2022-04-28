@@ -1,5 +1,3 @@
-const { Products, Orders } = require("../../models/Data");
-const Order = require("../../models/Order");
 const orderStatuses = require("../../utils/OrderStatuses");
 const paymentMethodRepository = require("../../paymentMethod/repository/paymentMethod.repository");
 const productRepository = require("../../product/repositories/product.repository");
@@ -10,12 +8,12 @@ async function orderExists(req, res, next) {
   if (isNaN(orderId)) {
     return res
       .status(422)
-      .json({ msg: "El numero de orden es invalido", error: true });
+      .json({ message: "El numero de orden es invalido", error: true });
   }
 
   try {
     const order = await orderRepository.get.byId(orderId, false);
-    if (!order) return res.status(404).json({ msg: `La orden con id ${orderId} no existe` });
+    if (!order) return res.status(404).json({ message: `La orden con id ${orderId} no existe`, error: true});
     req.order = order;
     next();
   } catch (error) {
@@ -30,23 +28,23 @@ async function validateOrderBody(req, res, next) {
     !(typeof products === "object" && Array.isArray(products)) ||
     typeof paymentMethodId !== "number"
   ) {
-    res.status(422).json({ msg: "Los campos son invalidos", error: true });
+    res.status(422).json({ message: "Los campos son invalidos", error: true });
     return;
   }
   const payMethod = await paymentMethodRepository.get.byId(paymentMethodId);
   if (!payMethod || !payMethod.enabled) {
-    return res.status(422).json({ msg: "El metodo de pago no existe", error: true });
+    return res.status(422).json({ message: "El metodo de pago no existe", error: true });
   }
 
   // Validates if every object in the products array contains the required parameters (name, amount)
   for (let product of products) {
     const { id, amount } = product;
     if (!(id && amount)) {
-      res.status(422).json({ msg: "Los productos son invalidos", error: true });
+      res.status(422).json({ message: "Los productos son invalidos", error: true });
       return;
     }
     if (typeof id !== "number" && typeof amount !== "number") {
-      res.status(422).json({ msg: "Los productos son invalidos", error: true });
+      res.status(422).json({ message: "Los productos son invalidos", error: true });
       return;
     }
 
@@ -64,7 +62,7 @@ function validateOrderStatus(req, res, next) {
   const orderStatus = req.body.status;
 
   if (!orderStatus) {
-    res.status(422).json({ msg: "Los campos son invalidos", error: true });
+    res.status(422).json({ message: "Los campos son invalidos", error: true });
     return;
   }
   
@@ -75,13 +73,13 @@ function validateOrderStatus(req, res, next) {
     }
   }
 
-  res.status(422).json({ msg: "El estado ingresado es invalido", error: true });
+  res.status(422).json({ message: "El estado ingresado es invalido", error: true });
 }
 
 function isOrderOwner(req, res, next) {
-  if (req.order.userId !== req.user.id) {
-    return res.status(401).json({
-      msg: "No es posible editar este pedido, solo se permiten modificar pedidos propios",
+  if (req.order.user.id != req.user.id) {
+    return res.status(404).json({
+      msg: `La orden con id ${req.order.id} no existe`,
       error: true,
     });
   }
@@ -140,7 +138,7 @@ function canSetOrderStatus(req, res, next) {
       break;
   }
 
-  if (req.order.userId !== req.user.id) {
+  if (req.order.user.id !== req.user.id) {
     res.status(401).json({
       msg: "No se puede editar este pedido, solo se permite modificar pedidos propios",
       error: true,
@@ -151,10 +149,28 @@ function canSetOrderStatus(req, res, next) {
   next();
 }
 
+async function getCheckoutOrder(req, res, next) {
+  const { token:checkoutId, PayerID } = req.query;
+  try {
+    const order = await orderRepository.get.byCheckoutId(checkoutId);
+    console.log("getCheckoutOrder:", {
+      id: order.id,
+      checkoutId: order.getDataValue("checkout_id"),
+      products: order.products,
+    })
+    if (!order) return res.sendStatus(400); //  invalid token or asociated Order is already confirmed
+    req.order = order;
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   orderExists,
   validateOrderBody,
   isOrderOwner,
   validateOrderStatus,
   canSetOrderStatus,
+  getCheckoutOrder
 };

@@ -1,6 +1,7 @@
 const { Model, DataTypes} = require('sequelize');
-const sequelize = require('../../connection/sequelize');
+const sequelize = require('../../database/sequelize');
 const Order = require('../../order/model/Order');
+const Credential = require('../../auth/model/Credential');
 
 class User extends Model {}
 
@@ -25,10 +26,6 @@ User.init({
         type: DataTypes.STRING,
         allowNull: true,
     },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
     isAdmin: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -40,23 +37,7 @@ User.init({
 }, {sequelize, modelName: "user"});
 
 User.Order = User.hasMany(Order);
- // helps to show the user asociated to the order
 Order.belongsTo(User, {as: 'user', foreignKey: 'userId'});
-
-/* (async () => {
-    await sequelize.sync({force: false});
-
-    await User.create({
-        username:"admin",
-        fullName:"ADMIN",
-        email: "admin@example.com",
-        phoneNumber: "123-456",
-        address: "Street Address",
-        password: "secretpass",
-        isAdmin: true,
-        enabled: true,
-    })
-})() */
-
+User.hasMany(Credential);
 
 module.exports = User;

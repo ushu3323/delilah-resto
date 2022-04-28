@@ -1,11 +1,12 @@
 const User = require("../user/model/User");
+const Credential = require("../auth/model/Credential");
 const Product = require("../product/model/Product");
 const Order = require("../order/model/Order");
 const OrderProducts = require("../order/model/OrderProducts");
 const paymentMethod = require("../paymentMethod/model/PaymentMethod");
 
 const config = require("../config");
-const sequelize = require("../connection/sequelize");
+const sequelize = require("../database/sequelize");
 const { sha256 } = require("js-sha256");
 
 const actions = {
@@ -32,16 +33,22 @@ const sync_models = async () => {
     }
 
     if (actions.registerAdmin) {
+      let local_credential = {
+        provider_userId: "",
+        provider_name: "local",
+        password: sha256(config.admin.password),
+      }
       let [admin, isAdminCreated] = await User.findOrCreate({
         where: { username: "admin", isAdmin: true },
         defaults: {
           username: "admin",
-          password: sha256(config.admin.password),
           fullName: "superuser",
           email: config.admin.email,
           isAdmin: true,
           enabled: true,
+          credentials: [local_credential]
         },
+        include: [ Credential ]
       });
 
       if (isAdminCreated) {

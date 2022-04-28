@@ -1,25 +1,51 @@
 require("dotenv").config();
+const env = require('../utils/envParser');
 
 module.exports = {
   db: {
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || "3306",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    database: process.env.DB_NAME || "delilah_resto",
+    host: env.getString("DB_HOST", "localhost"),
+    port: env.getNumber("DB_PORT", "3306"),
+    user: env.getString("DB_USER", "root"),
+    password: env.getString("DB_PASSWORD", ""),
+    database: env.getString("DB_NAME", "delilah_resto"),
   },
   cache: {
-    host: process.env.CACHE_HOST || "localhost",
-    port: process.env.CACHE_PORT || "6379",
-    user: process.env.CACHE_USER || "",
-    password: process.env.CACHE_PASSWORD || "",
+    host: env.getString("CACHE_HOST", "localhost"),
+    port: env.getNumber("CACHE_PORT", 6379),
+    user: env.getString("CACHE_USER", ""),
+    password: env.getString("CACHE_PASSWORD", ""),
   },
   server: {
-    port: process.env.NODE_PORT || 3000,
-    key: process.env.KEY || "YouShouldntReadThis:O",
+    port: env.getNumber("NODE_PORT", 3000),
+    enviroment: env.getString('NODE_ENV', 'development')
   },
   admin: {
-    email: process.env.ADMIN_EMAIL || "admin@test.com",
-    password: process.env.ADMIN_PASSWORD || "admin",
+    email: env.getString("ADMIN_EMAIL", "admin@test.com"),
+    password: env.getString("ADMIN_PASSWORD", "admin"),
   },
+  auth: {
+    google: {
+      clientID: env.getString("GOOGLE_CLIENT_ID", ""),
+      clientSecret: env.getString("GOOGLE_CLIENT_SECRET", ""),
+      callback_url: env.getString("GOOGLE_CALLBACK_URL", "localhost:3000/auth/google/callback"),
+    },
+  },
+  session: {
+    keys: [
+      env.getString("SESSION_KEY_A", "ReadingThisIsNotAllowed"),
+      env.getString("SESSION_KEY_B", "O:ThisTextToo!!"),
+    ],
+    cookie: {
+      age: env.getNumber("SESSION_COOKIE_AGE", 24 * 60 * 60 * 1000),
+      secure: env.getBoolean("SESSION_COOKIE_SECURE", false),
+    }
+  },
+  services: {
+    paypal: {
+      client_id: env.getString('PAYPAL_CLIENT_ID', null),
+      client_secret: env.getString('PAYPAL_CLIENT_SECRET', null),
+      return_callback_url: env.getString('PAYPAL_CALLBACK_RETURN_URL'),
+      cancel_callback_url: env.getString('PAYPAL_CALLBACK_CANCEL_URL')
+    }
+  }
 };

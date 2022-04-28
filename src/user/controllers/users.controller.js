@@ -1,11 +1,10 @@
-const { Users } = require("../../models/Data");
 const userRepository = require('../repositories/user.repository');
 const jwt = require('jsonwebtoken');
 const config = require('../../config');
 
 function login(req, res) {
     const { email, password } = req.user;
-    const token = jwt.sign({ email, password }, config.server.key);
+    const token = jwt.sign({ email, password }, config.auth.jwt.key);
     res.status(200).json({ token });
 };
 

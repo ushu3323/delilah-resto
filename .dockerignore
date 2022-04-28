@@ -1,0 +1,10 @@
+node_modules
+/internal
+
+# vscode config
+.vscode
+*.private.sh
+
+# Repository and github workflows
+.git
+.github
