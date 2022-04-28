@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>Hola Mundo!</h1>
+  <p id="api-content">Cargando</p>
+  <script>
+    fetch(`/api`)
+      .then(response => {
+        return new Promise(async (resolve, reject) => {
+          if (response.ok) return resolve(await response.text())
+          reject({ cause: "Error: Imposible conectarse con la api" })
+        })
+      })
+      .then(data => {
+        const $api_content = document.getElementById("api-content");
+        $api_content.innerHTML = data;
+      }).catch((err) => {
+        console.error(err.cause)
+        const $api_content = document.getElementById("api-content");
+        $api_content.innerHTML = err.cause;
+      })
+  </script>
+</body>
