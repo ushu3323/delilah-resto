@@ -1,7 +1,8 @@
 # Delilah Restó
 
 API de gestión de pedidos del restaurante Delilah Restó<br>
-Se ha utilizado el framework node.js junto con express para responder a las peticiones que se realicen
+Se utilizo Node.js y express.js para su desarrollo.
+
 Link del repositorio en github: https://github.com/ushu3323/delilah-resto
 
 ## Dependencias
@@ -15,7 +16,6 @@ Link del repositorio en github: https://github.com/ushu3323/delilah-resto
  Permite encriptar información delicada como contraseñas que luego será enviada/recibida de manera segura entre servidor y cliente
 ### sequelize
  Utilizado para crear, leer, actualizar y eliminar datos en la base de datos sql a través del modelo de programación ORM
-
 
 # Requisitos
 
@@ -70,6 +70,8 @@ Ejecute el comando `npm run sync -- -s -r` para crear las tablas necesarias para
 
 # Comandos
 
+> **NOTA**: Antes de ejecutar la rutina de tests (`npm test`) se recomienda utilizar una base de datos completamente distinta a la de producción
+
 ```bash
 npm test # Ejecuta las rutinas de tests con Mocha
 npm start # Inicia la API en modo producción
@@ -77,7 +79,4 @@ npm run dev # Inicia la API en modo desarrollador
 npm run sync # Utilidad que permite inicializar la base de datos
 ```
 
-#
-Para obtener mas información acerca de los endpoints, visite `/docs`.<br>
-
-**NOTA**: Antes de ejecutar la rutina de tests (`npm test`) se recomienda utilizar una base de datos completamente distinta a la de producción
+Un vez iniciada la API, la documentación se puede encontrar en `/docs`.
